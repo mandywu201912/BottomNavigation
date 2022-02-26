@@ -3,10 +3,15 @@
     <color name="colorPrimary">#3391F2</color>
     <color name="colorPrimaryVariant">#3391F2</color>
     <color name="colorOnPrimary">#3391F2</color>
-    <color name="color_bottomNavigation">#1A1A1A</color>
-    <color name="color_black">#FF000000</color>
-    <color name="color_white">#FFFFFFFF</color>
-    <color name="textColor_bottomNavigationIcon_normal">#878787</color>
+    <color name="color_buttonSelected">#18497B</color>
 
+    <color name="color_black">#FF000000</color>
+    <color name="color_mainBackground">#131313</color>
+    <color name="color_bottomNavigation">#1A1A1A</color>
+    <color name="color_editTextUnderlineDarkGray">#292929</color>
+    <color name="textColor_bottomNavigationIcon_normal">#878787</color>
+    <color name="textColor_addTitleGray">#979797</color>
+    <color name="textColor_addTextWhite">#DFDFDF</color>
+    <color name="color_white">#FFFFFFFF</color>
 
 </resources>

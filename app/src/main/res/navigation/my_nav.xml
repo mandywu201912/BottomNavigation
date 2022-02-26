@@ -15,4 +15,9 @@
         android:name="com.bigmiracle.bottomnavigation.SecondFragment"
         android:label="fragment_second"
         tools:layout="@layout/fragment_second" />
+    <activity
+        android:id="@+id/secondActivity"
+        android:name="com.bigmiracle.bottomnavigation.Activity.SecondActivity"
+        android:label="activity_second"
+        tools:layout="@layout/activity_second" />
 </navigation>
