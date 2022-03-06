@@ -3,9 +3,9 @@ package com.bigmiracle.bottomnavigation.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import com.bigmiracle.bottomnavigation.FirstFragment
+import com.bigmiracle.bottomnavigation.Fragment.FirstFragment
+import com.bigmiracle.bottomnavigation.Fragment.SecondFragment
 import com.bigmiracle.bottomnavigation.R
-import com.bigmiracle.bottomnavigation.SecondFragment
 import com.bigmiracle.bottomnavigation.databinding.ActivityMainBinding
 
 class MainActivity : BaseActivity() {
@@ -37,15 +37,13 @@ class MainActivity : BaseActivity() {
         }
 
         binding?.buttonAddOne?.setOnClickListener {
-            startActivity(Intent(this,AddCopyActivity::class.java))
+            startActivity(Intent(this,AddActivity::class.java))
         }
 
 
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
-
         doubleBackToExit()
     }
 

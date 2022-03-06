@@ -10,6 +10,7 @@
         <!-- Customize your theme here. -->
     </style>
 
+
     <style name="AppTheme.NoActionBar" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -28,9 +29,28 @@
     <style name="ToggleButtonGroupStyle" parent="Theme.MaterialComponents">
         <item name="backgroundTint">@color/button_togglegroup_color</item>
         <item name="android:textColor">@color/button_togglegroup_textcolor</item>
-        <item name="android:textStyle">bold</item>
         <item name="strokeColor">@color/color_buttonSelected</item>
         <item name="strokeWidth">1dp</item>
+    </style>
+
+    <style name="buttonStyle" parent="Theme.MaterialComponents">
+        <item name="backgroundTint">@color/button_donebutton_color</item>
+        <item name="android:textColor">@color/button_donebutton_textcolor</item>
+    </style>
+
+
+
+
+    <style name="blueButtonStyle" parent="Theme.MaterialComponents">
+        <item name="backgroundTint">@color/colorPrimary</item>
+        <item name="android:textColor">@color/color_white</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="grayButtonStyle" parent="Theme.MaterialComponents">
+        <item name="backgroundTint">@color/textColor_addTextWhite</item>
+        <item name="android:textColor">@color/textColor_bottomNavigationIcon_normal</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
 </resources>

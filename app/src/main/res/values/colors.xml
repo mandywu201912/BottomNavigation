@@ -8,7 +8,9 @@
     <color name="color_black">#FF000000</color>
     <color name="color_mainBackground">#131313</color>
     <color name="color_bottomNavigation">#1A1A1A</color>
+    <color name="color_cardGray">#1F1F1F</color>
     <color name="color_editTextUnderlineDarkGray">#292929</color>
+    <color name="textColor_hintDarkGray">#585858</color>
     <color name="textColor_bottomNavigationIcon_normal">#878787</color>
     <color name="textColor_addTitleGray">#979797</color>
     <color name="textColor_addTextWhite">#DFDFDF</color>

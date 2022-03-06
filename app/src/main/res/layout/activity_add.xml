@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -11,6 +11,7 @@
     tools:context=".Activity.AddActivity">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay"
@@ -26,692 +27,643 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-
-
-<!--    <LinearLayout-->
-<!--        android:layout_margin="20dp"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:orientation="horizontal">-->
-
-<!--        <LinearLayout-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_weight="1"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="vertical"-->
-<!--            android:layout_margin="10dp">-->
-
-<!--            <TextView-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_weight="1"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:gravity="center_vertical"-->
-<!--                android:text="股票"-->
-<!--                android:textSize="18sp"-->
-<!--                android:textColor="@color/textColor_addTitleGray"-->
-<!--                />-->
-
-<!--            <View-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_marginTop="10dp"-->
-<!--                android:layout_height="1dp"-->
-<!--                android:background="@android:color/transparent"/>-->
-
-
-<!--        </LinearLayout>-->
-
-<!--        <LinearLayout-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_weight="3"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="vertical"-->
-<!--            android:layout_margin="10dp">-->
-
-<!--            <EditText-->
-<!--                android:id="@+id/stockEditText"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:hint="請輸入股名或股號"-->
-<!--                android:textColorHint="@color/textColor_addTitleGray"-->
-<!--                android:textColor="@color/textColor_addTextWhite"-->
-<!--                android:background="@android:color/transparent" />-->
-
-<!--            <LinearLayout-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:orientation="horizontal"-->
-<!--                android:weightSum="2">-->
-
-<!--                <View-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_weight="1.2"-->
-<!--                    android:layout_marginTop="10dp"-->
-<!--                    android:layout_height="1dp"-->
-<!--                    android:background="@color/color_dividendDarkGray"/>-->
-<!--            </LinearLayout>-->
-<!--        </LinearLayout>-->
-<!--    </LinearLayout>-->
-
-    <!--股票-->
-    <LinearLayout
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/sv"
+        app:layout_constraintTop_toBottomOf="@id/appBar"
+        app:layout_constraintBottom_toTopOf="@id/bottomLinearLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:overScrollMode="always">
 
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_margin="10dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:text="股票"
-                android:textSize="18sp"
-                android:textColor="@color/textColor_addTitleGray"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_marginTop="10dp"
-                android:layout_height="1dp"
-                android:background="@android:color/transparent"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="4"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_margin="10dp">
-
-            <EditText
-                android:id="@+id/stockEditText"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:hint="請輸入股名或股號"
-                android:textColorHint="@color/textColor_addTitleGray"
-                android:textColor="@color/textColor_addTextWhite"
-                android:background="@android:color/transparent" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_weight="2"
-                    android:layout_marginTop="10dp"
-                    android:layout_height="1dp"
-                    android:background="@color/color_editTextUnderlineDarkGray"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:layout_weight="2">
-
-        </LinearLayout>
-
-
-
-    </LinearLayout>
-
-    <!--交易-->
-    <LinearLayout
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_marginStart="10dp"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:text="交易"
-            android:textSize="18sp"
-            android:textColor="@color/textColor_addTitleGray"/>
-
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:layout_width="0dp"
-            android:layout_weight="5"
-            android:layout_height="match_parent"
-            app:checkedButton="@+id/stockButton"
-            app:singleSelection="true"
-            app:selectionRequired="true">
-
-            <Button
-                android:id="@+id/stockButton"
-                style="@style/ToggleButtonGroupStyle"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:textSize="18sp"
-                android:text="現股"/>
-
-            <Button
-                android:id="@+id/dividendButton"
-                style="@style/ToggleButtonGroupStyle"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:textSize="18sp"
-                android:text="股利"/>
-
-
-
-
-        </com.google.android.material.button.MaterialButtonToggleGroup>
-
-
-    </LinearLayout>
-
-    <!--類型-->
-    <LinearLayout
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_marginStart="10dp"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:text="類型"
-            android:textSize="18sp"
-            android:textColor="@color/textColor_addTitleGray"/>
-
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:layout_width="0dp"
-            android:layout_weight="5"
-            android:layout_height="match_parent"
-            app:checkedButton="@+id/type1Button"
-            app:singleSelection="true"
-            app:selectionRequired="true">
-
-            <Button
-                android:id="@+id/type1Button"
-                style="@style/ToggleButtonGroupStyle"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:textSize="18sp"
-                android:text="買進"/>
-
-            <Button
-                android:id="@+id/type2Button"
-                style="@style/ToggleButtonGroupStyle"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:textSize="18sp"
-                android:text="賣出"/>
-
-
-        </com.google.android.material.button.MaterialButtonToggleGroup>
-
-
-    </LinearLayout>
-
-    <!--日期-->
-    <LinearLayout
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_margin="10dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:text="日期"
-                android:textSize="18sp"
-                android:textColor="@color/textColor_addTitleGray"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_marginTop="10dp"
-                android:layout_height="1dp"
-                android:background="@android:color/transparent"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="4"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_margin="10dp">
-
-            <EditText
-                android:id="@+id/dateEditText"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="2022/05/13"
-                android:textColorHint="@color/textColor_addTitleGray"
-                android:textColor="@color/textColor_addTextWhite"
-                android:background="@android:color/transparent" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_weight="2"
-                    android:layout_marginTop="10dp"
-                    android:layout_height="1dp"
-                    android:background="@color/color_editTextUnderlineDarkGray"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:layout_weight="2">
-
-        </LinearLayout>
-
-
-
-    </LinearLayout>
-
-    <!--價格-->
-    <LinearLayout
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_margin="10dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:text="價格"
-                android:textSize="18sp"
-                android:textColor="@color/textColor_addTitleGray"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_marginTop="10dp"
-                android:layout_height="1dp"
-                android:background="@android:color/transparent"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="4"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_margin="10dp">
-
-            <EditText
-                android:id="@+id/priceEditText"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:hint="請輸入價格"
-                android:textColorHint="@color/textColor_addTitleGray"
-                android:textColor="@color/textColor_addTextWhite"
-                android:background="@android:color/transparent" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_weight="2"
-                    android:layout_marginTop="10dp"
-                    android:layout_height="1dp"
-                    android:background="@color/color_editTextUnderlineDarkGray"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:layout_weight="2">
-
-        </LinearLayout>
-
-
-
-    </LinearLayout>
-
-    <!--股數-->
-    <LinearLayout
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_margin="10dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:text="股數"
-                android:textSize="18sp"
-                android:textColor="@color/textColor_addTitleGray"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_marginTop="10dp"
-                android:layout_height="1dp"
-                android:background="@android:color/transparent"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="4"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_margin="10dp">
-
-            <EditText
-                android:id="@+id/volumeEditText"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:hint="請輸入股數"
-                android:textColorHint="@color/textColor_addTitleGray"
-                android:textColor="@color/textColor_addTextWhite"
-                android:background="@android:color/transparent" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_weight="2"
-                    android:layout_marginTop="10dp"
-                    android:layout_height="1dp"
-                    android:background="@color/color_editTextUnderlineDarkGray"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:layout_weight="2">
-
-
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="0.05"
-                android:src="@drawable/icon_minus"
-
-                android:background="@android:color/transparent"/>
-
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="0.05"
-                android:src="@drawable/icon_add"
-                android:background="@android:color/transparent"/>
-        </LinearLayout>
-
-
-
-    </LinearLayout>
-
-
-    <androidx.cardview.widget.CardView
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/color_bottomNavigation"
-        app:cardCornerRadius="10dp">
-
-        <LinearLayout
+            android:padding="20dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <!--價格-->
+            <!--股票-->
             <LinearLayout
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="20dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginBottom="10dp"
                 android:orientation="horizontal">
 
-                <LinearLayout
+                <TextView
                     android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_margin="10dp">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_weight="1"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical"
-                        android:text="手續費"
-                        android:textSize="18sp"
-                        android:textColor="@color/textColor_addTitleGray"/>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_marginTop="10dp"
-                        android:layout_height="1dp"
-                        android:background="@android:color/transparent"/>
-                </LinearLayout>
+                    android:layout_weight="2"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="股票"
+                    android:textSize="18sp"
+                    android:textColor="@color/textColor_addTitleGray"/>
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_weight="4"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_margin="10dp">
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
 
-                    <EditText
-                        android:id="@+id/feeEditText"
+                    <AutoCompleteTextView
+                        android:id="@+id/stockAutoCompleteTextView"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:hint="-"
-                        android:textColorHint="@color/textColor_addTitleGray"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:inputType="text"
+                        android:hint="請輸入股名或股號"
+                        android:textColorHint="@color/textColor_hintDarkGray"
                         android:textColor="@color/textColor_addTextWhite"
+                        android:textSize="18sp"
                         android:background="@android:color/transparent" />
 
-                    <LinearLayout
+                    <View
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="2">
-
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_weight="2"
-                            android:layout_marginTop="10dp"
-                            android:layout_height="1dp"
-                            android:background="@color/color_editTextUnderlineDarkGray"/>
-                    </LinearLayout>
+                        android:layout_height="1dp"
+                        android:background="@color/color_editTextUnderlineDarkGray"/>
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="2.5"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+                </LinearLayout>
+            </LinearLayout>
+
+            <!--交易-->
+            <LinearLayout
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="交易"
+                    android:textSize="18sp"
+                    android:textColor="@color/textColor_addTitleGray"/>
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/typeToggleGroup"
+                    android:layout_width="0dp"
+                    android:layout_weight="5"
+                    android:layout_height="match_parent"
+                    app:checkedButton="@+id/type1Button"
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
+
+                    <Button
+                        android:id="@+id/type1Button"
+                        style="@style/ToggleButtonGroupStyle"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent"
+                        android:textSize="18sp"
+                        android:text="現股"/>
+
+                    <Button
+                        android:id="@+id/type2Button"
+                        style="@style/ToggleButtonGroupStyle"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent"
+                        android:textSize="18sp"
+                        android:text="股利"/>
+
+                </com.google.android.material.button.MaterialButtonToggleGroup>
 
 
+            </LinearLayout>
 
+            <!--類型-->
+            <LinearLayout
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="類型"
+                    android:textSize="18sp"
+                    android:textColor="@color/textColor_addTitleGray"/>
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/subtypeToggleGroup"
+                    android:layout_width="0dp"
+                    android:layout_weight="5"
+                    android:layout_height="match_parent"
+                    app:checkedButton="@+id/subtype1Button"
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
+
+                    <Button
+                        android:id="@+id/subtype1Button"
+                        style="@style/ToggleButtonGroupStyle"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent"
+                        android:text="買進"
+                        android:textSize="18sp" />
+
+                    <Button
+                        android:id="@+id/subtype2Button"
+                        style="@style/ToggleButtonGroupStyle"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent"
+                        android:text="賣出"
+                        android:textSize="18sp" />
+
+                </com.google.android.material.button.MaterialButtonToggleGroup>
+            </LinearLayout>
+
+            <!--日期-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="10dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="2"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="日期"
+                    android:textSize="18sp"
+                    android:textColor="@color/textColor_addTitleGray"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="4"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/dateTextView"
+                        android:gravity="center_vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:text="2022/05/12"
+                        android:textColor="@color/textColor_addTextWhite"
+                        android:textSize="18sp"
+                        android:background="@android:color/transparent" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/color_editTextUnderlineDarkGray"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="2.5"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+                </LinearLayout>
             </LinearLayout>
 
             <!--價格-->
             <LinearLayout
-                android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="10dp"
                 android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/priceTextView"
+                    android:layout_width="0dp"
+                    android:layout_weight="2"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="價格"
+                    android:textSize="18sp"
+                    android:textColor="@color/textColor_addTitleGray"/>
 
                 <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_weight="0.7"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_margin="10dp">
+                    android:layout_weight="4"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
 
-                    <TextView
+                    <EditText
+                        android:id="@+id/priceEditText"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical"
-                        android:text="交易金額"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:inputType="numberDecimal"
+                        android:hint="請輸入價格"
+                        android:textColorHint="@color/textColor_hintDarkGray"
+                        android:textColor="@color/textColor_addTextWhite"
                         android:textSize="18sp"
-                        android:textColor="@color/textColor_addTitleGray"/>
+                        android:background="@android:color/transparent" />
 
                     <View
                         android:layout_width="match_parent"
-                        android:layout_marginTop="10dp"
                         android:layout_height="1dp"
-                        android:background="@android:color/transparent"/>
+                        android:background="@color/color_editTextUnderlineDarkGray"/>
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
+                    android:layout_weight="2.5"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+                </LinearLayout>
+            </LinearLayout>
+
+            <!--股數-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginStart="10dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/shares_text_view"
+                    android:layout_width="0dp"
                     android:layout_weight="2"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginVertical="10dp">
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="股數"
+                    android:textSize="18sp"
+                    android:textColor="@color/textColor_addTitleGray"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="4"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
 
                     <EditText
-                        android:id="@+id/amountEditText"
+                        android:id="@+id/shares_edit_text"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:hint="-"
-                        android:textColorHint="@color/textColor_addTitleGray"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"
+                        android:inputType="number"
+                        android:imeOptions="actionDone"
+                        android:hint="請輸入股數"
+                        android:textColorHint="@color/textColor_hintDarkGray"
                         android:textColor="@color/textColor_addTextWhite"
+                        android:textSize="18sp"
                         android:background="@android:color/transparent" />
 
-                    <LinearLayout
+                    <View
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="2">
+                        android:layout_height="1dp"
+                        android:background="@color/color_editTextUnderlineDarkGray"/>
+                </LinearLayout>
 
-                        <View
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="2.5"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <ImageButton
+                        android:id="@+id/minusButton"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/icon_minus"
+                        android:background="@android:color/transparent"/>
+
+                    <ImageButton
+                        android:id="@+id/plusButton"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/icon_add"
+                        android:background="@android:color/transparent"/>
+
+
+
+                </LinearLayout>
+            </LinearLayout>
+
+
+            <androidx.cardview.widget.CardView
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/color_cardGray"
+                app:cardCornerRadius="10dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <!--手續費-->
+                    <LinearLayout
+                        android:id="@+id/feeLinearLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginStart="10dp"
+                        android:orientation="horizontal"
+                        android:visibility="visible">
+
+                        <TextView
                             android:layout_width="0dp"
                             android:layout_weight="2"
-                            android:layout_marginTop="10dp"
-                            android:layout_height="1dp"
-                            android:background="@color/color_editTextUnderlineDarkGray"/>
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical"
+                            android:text="手續費"
+                            android:textSize="18sp"
+                            android:textColor="@color/textColor_addTitleGray"/>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="4"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <EditText
+                                android:id="@+id/feeEditText"
+                                android:layout_width="match_parent"
+                                android:layout_height="0dp"
+                                android:layout_weight="2"
+                                android:inputType="number"
+                                android:hint="-"
+                                android:textColorHint="@color/textColor_addTitleGray"
+                                android:textColor="@color/textColor_addTextWhite"
+                                android:textSize="18sp"
+                                android:background="@android:color/transparent" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/color_editTextUnderlineDarkGray"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="2.5"
+                            android:layout_height="match_parent"
+                            android:gravity="center">
+                        </LinearLayout>
                     </LinearLayout>
+
+                    <!--交易稅-->
+                    <LinearLayout
+                        android:id="@+id/taxLinearLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginStart="10dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="2"
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical"
+                            android:text="交易稅"
+                            android:textSize="18sp"
+                            android:textColor="@color/textColor_addTitleGray"/>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="4"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <EditText
+                                android:id="@+id/taxEditText"
+                                android:layout_width="match_parent"
+                                android:layout_height="0dp"
+                                android:layout_weight="2"
+                                android:hint="-"
+                                android:inputType="number"
+                                android:textColorHint="@color/textColor_addTitleGray"
+                                android:textColor="@color/textColor_addTextWhite"
+                                android:textSize="18sp"
+                                android:background="@android:color/transparent" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/color_editTextUnderlineDarkGray"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="2.5"
+                            android:layout_height="match_parent"
+                            android:gravity="center">
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!--金額-->
+                    <LinearLayout
+                        android:id="@+id/amountLinearLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="20dp"
+                        android:layout_marginStart="10dp"
+                        android:orientation="horizontal"
+                        android:visibility="visible">
+
+                        <TextView
+                            android:id="@+id/distribute_shares_text_view"
+                            android:layout_width="0dp"
+                            android:layout_weight="2"
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical"
+                            android:text="交易金額"
+                            android:textSize="18sp"
+                            android:textColor="@color/textColor_addTitleGray"/>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="4"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <EditText
+                                android:id="@+id/amountEditText"
+                                android:layout_width="match_parent"
+                                android:layout_height="0dp"
+                                android:layout_weight="2"
+                                android:inputType="number"
+                                android:hint="-"
+                                android:textColorHint="@color/textColor_addTitleGray"
+                                android:textColor="@color/textColor_addTextWhite"
+                                android:textSize="18sp"
+                                android:background="@android:color/transparent" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/color_editTextUnderlineDarkGray"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="2.5"
+                            android:layout_height="match_parent"
+                            android:gravity="center">
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!--配發股數-->
+                    <LinearLayout
+                        android:id="@+id/distributeLinearLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="20dp"
+                        android:layout_marginStart="10dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="2"
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical"
+                            android:text="配發股數"
+                            android:textSize="18sp"
+                            android:textColor="@color/textColor_addTitleGray"/>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="4"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <EditText
+                                android:id="@+id/distribute_shares_edit_text"
+                                android:layout_width="match_parent"
+                                android:layout_height="0dp"
+                                android:layout_weight="2"
+                                android:inputType="number"
+                                android:hint="-"
+                                android:textColorHint="@color/textColor_addTitleGray"
+                                android:textColor="@color/textColor_addTextWhite"
+                                android:textSize="18sp"
+                                android:background="@android:color/transparent" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/color_editTextUnderlineDarkGray"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="2.5"
+                            android:layout_height="match_parent"
+                            android:gravity="center">
+                        </LinearLayout>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="100dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/color_cardGray"
+                app:cardCornerRadius="10dp">
+
+                <!--筆記-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_alignParentTop="true"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="250dp"
+                        android:text="筆記"
+                        android:textSize="18sp"
+                        android:textColor="@color/textColor_addTitleGray"/>
+
+                    <EditText
+                        android:id="@+id/noteEditText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="10dp"
+                        android:layout_weight="4"
+                        android:background="@android:color/transparent"
+                        android:hint="-"
+                        android:inputType="textMultiLine"
+                        android:textColor="@color/textColor_addTextWhite"
+                        android:textColorHint="@color/textColor_addTitleGray"
+                        android:textSize="18sp" />
+
                 </LinearLayout>
 
 
 
-            </LinearLayout>
-
+            </androidx.cardview.widget.CardView>
 
 
         </LinearLayout>
 
 
 
+    </androidx.core.widget.NestedScrollView>
 
-
-    </androidx.cardview.widget.CardView>
-
-    <androidx.cardview.widget.CardView
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
+    <!--    完成-->
+    <LinearLayout
+        android:id="@+id/bottomLinearLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/color_bottomNavigation"
-        app:cardCornerRadius="10dp">
+        android:layout_height="70dp"
+        android:background="@color/color_black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
 
-        <LinearLayout
+        <Button
+            android:id="@+id/doneButton"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginVertical="5dp"
+            android:layout_gravity="center"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_margin="10dp">
+            android:layout_height="match_parent"
+            style="@style/buttonStyle"
+            android:text="完成"
+            android:textSize="18dp" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:text="筆記"
-                android:textSize="18sp"
-                android:textColor="@color/textColor_addTitleGray"/>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_marginTop="10dp"
-                android:layout_height="1dp"
-                android:background="@android:color/transparent"/>
-        </LinearLayout>
+    </LinearLayout>
 
 
 
 
 
 
-
-    </androidx.cardview.widget.CardView>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

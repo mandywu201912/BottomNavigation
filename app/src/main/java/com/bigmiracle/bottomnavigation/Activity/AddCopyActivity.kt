@@ -3,34 +3,37 @@ package com.bigmiracle.bottomnavigation.Activity
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.text.Editable
+import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.View
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import com.bigmiracle.bottomnavigation.Adapter.stockListAdapter
+import com.bigmiracle.bottomnavigation.Data.Datasource
 import com.bigmiracle.bottomnavigation.R
+import com.bigmiracle.bottomnavigation.Utils
 import com.bigmiracle.bottomnavigation.databinding.ActivityAddCopyBinding
-import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
 
-class AddCopyActivity : AppCompatActivity() {
+class AddCopyActivity : BaseActivity() {
 
     private var binding: ActivityAddCopyBinding? = null
-//
-//    private lateinit var type: String
-//    private  lateinit var subtype: String
 
     private var type: String = "現股"
     private var subtype: String = "買進"
 
-    private var volume: Double = 0.0
     private var price: Double = 0.0
-//
-//    companion object {
-//        private var type: String = "現股"
-//        private var subtype: String = "買進"
-//    }
+    private var shares: Int = 0
+    private var fee: Int = 0
+    private var tax: Int = 0
+    private var amount: Int = 0
+    private var distributeShares: Int = 0
+    private var value: Double = 0.0
+
+    private var feeDiscount = 0.65
+    private var minimumFee: Int = 20
+
+    private var autoCalculate: Boolean = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,187 +42,343 @@ class AddCopyActivity : AppCompatActivity() {
         binding = ActivityAddCopyBinding.inflate(layoutInflater)
         setContentView(binding?.root)
 
+
+
+        binding?.dateTextView?.setOnClickListener {
+            showDatePicker()
+        }
+
+        //輸入股名股號
+        val stockList = Datasource().loadAllStocks()
+        val adapter = stockListAdapter(this, R.layout.adapter_search_list_item, ArrayList(stockList))
+        binding?.stockAutoCompleteTextView?.threshold = 1
+        binding?.stockAutoCompleteTextView?.setAdapter(adapter)
+
+
+        setupActionBar()
+        showToday()
+        transactionTypeCheck()
+        scrollWhenPressEditText()
+
+        typingOnPriceChanged()
+        typingOnSharesChanged()
+        typingOnFeeChanged()
+        typingOnTaxChanged()
+        typingOnAmountChanged()
+        typingOnDistributeSharesChanged()
+
+        sharesButtonClick()
+        doneButtonClickable()
+
+    }
+
+    private fun scrollWhenPressEditText(){
         binding?.noteEditText?.setOnFocusChangeListener { v, hasFocus ->
             if(hasFocus){
                 binding?.sv?.scrollTo(0, binding!!.sv.bottom)
             }
         }
-        binding?.dateTextView?.setOnClickListener {
-            showDatePicker()
 
-        }
-
-        setupActionBar()
-
-       binding?.doneButton?.setOnClickListener {
-
-           var amount = binding?.amountEditText?.text
-
-
-
-
-           Toast.makeText(this, "$amount", Toast.LENGTH_SHORT).show()
-
-       }
-
-        showToday()
-        transactionTypeCheck()
-        volumeButtonClick()
-        calculateOnTextChanged()
-
-    }
-
-
-    private fun transactionTypeCheck(){
-        binding?.typeToggleGroup?.addOnButtonCheckedListener { group, checkedId, isChecked ->
-
-            if(isChecked){
-                if(checkedId == binding?.type1Button?.id){
-
-                    type = "現股"
-                    subtype = "買進"
-
-                    binding?.subtype1Button?.text = "買進"
-                    binding?.subtype2Button?.text = "賣出"
-
-                    binding?.subtype1Button?.let { binding?.subtypeToggleGroup?.check(it.id) }
-
-                    Toast.makeText(this, "$type $subtype", Toast.LENGTH_SHORT).show()
-
-                } else if(checkedId == binding?.type2Button?.id){
-
-                    type = "股利"
-                    subtype = "現金股利"
-
-                    binding?.subtype1Button?.text = "現金股利"
-                    binding?.subtype2Button?.text = "股票股利"
-
-                    binding?.subtype1Button?.let { binding?.subtypeToggleGroup?.check(it.id) }
-
-
-                    Toast.makeText(this, "$type $subtype", Toast.LENGTH_SHORT).show()
-
-                }
+        binding?.feeEditText?.setOnFocusChangeListener { v, hasFocus ->
+            if(hasFocus){
+                binding?.sv?.scrollTo(0, binding!!.sv.height/4)
             }
         }
-        binding?.subtypeToggleGroup?.addOnButtonCheckedListener { group, checkedId, isChecked ->
-            if(isChecked){
-                if(checkedId == binding?.subtype1Button?.id){
-                    if(type == "現股"){
-                        subtype = "買進"
-                        Toast.makeText(this, "$type $subtype", Toast.LENGTH_SHORT).show()
 
-                        binding?.feeEditText?.visibility = View.GONE
-                    } else if(type == "股利") {
-                        subtype = "現金股利"
-                        Toast.makeText(this, "$type $subtype", Toast.LENGTH_SHORT).show()
-                    }
+        binding?.taxEditText?.setOnFocusChangeListener { v, hasFocus ->
+            if(hasFocus){
+                binding?.sv?.scrollTo(0, binding!!.sv.height/4)
+            }
+        }
 
-                } else if (checkedId == binding?.subtype2Button?.id) {
-                    if(type == "現股"){
-                        type = "現股"
-                        subtype = "賣出"
-                        binding?.feeEditText?.visibility = View.VISIBLE
-                        Toast.makeText(this, "$type $subtype", Toast.LENGTH_SHORT).show()
-
-                    } else if (type == "股利") {
-                        type = "股利"
-                        subtype = "股票股利"
-                        Toast.makeText(this, "$type $subtype", Toast.LENGTH_SHORT).show()
-                    }
-                }
+        binding?.amountEditText?.setOnFocusChangeListener { v, hasFocus ->
+            if(hasFocus){
+                binding?.sv?.scrollTo(0, binding!!.sv.height/4)
             }
         }
     }
 
-    private fun calculateOnTextChanged(){
+    //股價
+    private fun typingOnPriceChanged(){
 
-        val textWatcher = object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
+        binding?.priceEditText?.addTextChangedListener(object : TextWatcher {
+
+            override fun afterTextChanged(s: Editable) {
+                binding?.priceEditText?.removeTextChangedListener(this)
+                var priceString = binding?.priceEditText?.text.toString()
+                if (!TextUtils.isEmpty(priceString)) {
+                    price = binding?.priceEditText?.text.toString().toDouble()
+
+                } else {
+                    price = 0.0
+                }
+
+                binding?.priceEditText?.addTextChangedListener(this)
+                calculate()
+
             }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                calculateAmountAndFee()
+
             }
-        }
-        binding?.volumeEditText?.addTextChangedListener(textWatcher)
-        binding?.priceEditText?.addTextChangedListener(textWatcher)
+        })
     }
 
+    //股數
+    private fun typingOnSharesChanged(){
 
+        binding?.sharesEditText?.addTextChangedListener(object : TextWatcher {
 
-    private fun calculateAmountAndFee(){
-
-        var volumeString = binding?.volumeEditText?.text.toString()
-        var priceString = binding?.priceEditText?.text.toString()
-
-        if( !volumeString.isNullOrEmpty()&& !priceString.isNullOrEmpty()){
-
-            var numberFormat = NumberFormat.getIntegerInstance()
-            numberFormat.maximumFractionDigits = 0
-            volumeString =numberFormat.parse(volumeString).toString()
-
-            volume = volumeString.toDouble()
-            price = priceString.toDouble()
-            var feeDiscount = 0.65
-            var lessFee: Double = 1.0
-            var amount: Double
-            var fee = (volume*price)*0.1425*0.01*feeDiscount
-
-            if(fee < 1) {
-                fee = lessFee
-            }
-            if(volume*price>0){
-                amount = volume*price - fee
-            } else {
-                amount = 0.0
-                fee = 0.0
+            override fun afterTextChanged(s: Editable) {
+                binding?.sharesEditText?.removeTextChangedListener(this)
+                shares = Utils.thousandFormat(binding?.sharesEditText!!).toInt()
+                binding?.sharesEditText?.addTextChangedListener(this)
+                calculate()
             }
 
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
 
-//            binding?.amountEditText?.setText(String.format("$%,.0f",amount))
-            binding?.feeEditText?.setText(String.format("$%,.0f",fee))
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+        })
+    }
 
-            var dollarFormat = NumberFormat.getCurrencyInstance()
-            dollarFormat.maximumFractionDigits = 0
-            binding?.amountEditText?.setText(dollarFormat.format(amount))
+    //手續費
+    private fun typingOnFeeChanged(){
+
+        binding?.feeEditText?.addTextChangedListener(object : TextWatcher {
+
+            override fun afterTextChanged(s: Editable) {
+                binding?.feeEditText?.removeTextChangedListener(this)
+                fee = Utils.thousandFormat(binding?.feeEditText!!).toInt()
+                binding?.feeEditText?.addTextChangedListener(this)
+
+                if(!autoCalculate){
+                    if(type == "現股"&& subtype == "買進"){
+                        amount = (price*shares.toDouble()).toInt()+fee
+                        binding?.amountEditText?.setText(Utils.numberFormat(amount))
+                    } else if (type == "現股"&& subtype == "賣出"){
+                        amount = (price*shares.toDouble()).toInt()-fee-tax
+                        binding?.amountEditText?.setText(Utils.numberFormat(amount))
+
+                    } else if (type == "股利"&& subtype == "現金股利"){
+                        amount = (price*shares.toDouble()).toInt()-fee
+                        binding?.amountEditText?.setText(Utils.numberFormat(amount))
+
+                    }
+                }
+                doneButtonClickable()
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+        })
+    }
+
+    //交易稅
+    private fun typingOnTaxChanged(){
+
+        binding?.taxEditText?.addTextChangedListener(object : TextWatcher {
+
+            override fun afterTextChanged(s: Editable) {
+                binding?.taxEditText?.removeTextChangedListener(this)
+                tax = Utils.thousandFormat(binding?.taxEditText!!).toInt()
+                binding?.taxEditText?.addTextChangedListener(this)
+
+                if(!autoCalculate){
+                    amount = (price*shares.toDouble()).toInt()-fee-tax
+                    binding?.amountEditText?.setText(Utils.numberFormat(amount))
+                }
+
+                doneButtonClickable()
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+        })
+    }
+
+    //交易金額
+    private fun typingOnAmountChanged(){
+
+        binding?.amountEditText?.addTextChangedListener(object : TextWatcher {
+
+            override fun afterTextChanged(s: Editable) {
+                binding?.amountEditText?.removeTextChangedListener(this)
+                amount = Utils.thousandFormat(binding?.amountEditText!!).toInt()
+                binding?.amountEditText?.addTextChangedListener(this)
+
+                doneButtonClickable()
+
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+        })
+    }
+
+    //配發股數
+    private fun typingOnDistributeSharesChanged(){
+
+        binding?.distributeSharesEditText?.addTextChangedListener(object : TextWatcher {
+
+            override fun afterTextChanged(s: Editable) {
+                binding?.distributeSharesEditText?.removeTextChangedListener(this)
+                distributeShares = Utils.thousandFormat(binding?.distributeSharesEditText!!).toInt()
+                binding?.distributeSharesEditText?.addTextChangedListener(this)
+
+                doneButtonClickable()
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+        })
+    }
+
+    private fun calculate(){
+
+        autoCalculate = true
+
+        value = price*shares
+
+        if(value>0){
+
+            if(type=="現股" && subtype=="買進"){
+
+                fee = (value*0.001425*feeDiscount).toInt()
+
+                if(fee < minimumFee){
+                    fee = minimumFee
+                }
+
+                amount =(value + fee).toInt()
+
+            } else if (type=="現股" && subtype=="賣出"){
+
+                fee = (value*0.001425*feeDiscount).toInt()
+
+                if(fee < minimumFee){
+                    fee = minimumFee
+                }
+
+                tax = (value*0.003).toInt()
+
+                amount = (value-fee-tax).toInt()
+
+            } else if (type=="股利" && subtype=="現金股利"){
+                fee = 10
+                amount =(value - fee).toInt()
+
+            } else if (type=="股利" && subtype=="股票股利"){
+                distributeShares = (price/10.0*shares).toInt()
+            }
 
 
         } else {
-            binding?.amountEditText?.setText("0")
-            binding?.feeEditText?.setText("0")
+            fee = 0
+            tax = 0
+            amount = 0
+            distributeShares = 0
 
         }
+
+        showDataAtEdittext()
+        autoCalculate = false
     }
 
-    private fun volumeButtonClick(){
+    fun showDataAtEdittext(){
+
+        binding?.feeEditText?.setText(Utils.numberFormat(fee))
+        binding?.amountEditText?.setText(Utils.numberFormat(amount))
+        binding?.taxEditText?.setText(Utils.numberFormat(tax))
+        binding?.distributeSharesEditText?.setText(Utils.numberFormat(distributeShares))
+
+        doneButtonClickable()
+    }
+
+    private fun sharesButtonClick(){
 
         binding?.minusButton?.setOnClickListener {
-            if(volume >= 1000){
-                volume -= 1000
-            } else if(volume<1000) {
-                volume = 0.0
+            if(shares >= 1000){
+                shares -= 1000
+            } else if(shares<1000) {
+                shares = 0
             }
+            binding?.sharesEditText?.setText(Utils.numberFormat(shares))
 
-
-            var numberFormat = NumberFormat.getIntegerInstance()
-            numberFormat.maximumFractionDigits = 0
-            binding?.volumeEditText?.setText(numberFormat.format(volume))
-
-//            binding?.volumeEditText?.setText(volume.toInt().toString())
-            calculateAmountAndFee()
         }
 
         binding?.plusButton?.setOnClickListener {
-            volume += 1000
-            binding?.volumeEditText?.setText(volume.toInt().toString())
-            calculateAmountAndFee()
+            shares += 1000
+            binding?.sharesEditText?.setText(Utils.numberFormat(shares))
+        }
+    }
+
+    private fun doneButtonClickable(){
+
+        if(type=="現股" && subtype=="買進"){
+            if(price != 0.0 && amount != 0 && fee != 0 && shares != 0){
+
+                binding?.doneButton?.isEnabled = true
+                binding?.doneButton?.setOnClickListener {
+                    Utils.showToast(this@AddCopyActivity,"volume is $shares, price is $price , fee is $fee and amount is $amount ")
+                }
+
+            } else {
+                binding?.doneButton?.isEnabled = false
+            }
+
+        } else if (type=="現股" && subtype=="賣出"){
+
+            if(price != 0.0 && amount != 0 && fee != 0 && shares != 0 && tax!=0 ){
+
+                binding?.doneButton?.isEnabled = true
+                binding?.doneButton?.setOnClickListener {
+                    Utils.showToast(this@AddCopyActivity,"volume is $shares, price is $price , fee is $fee , tax is $tax and amount is $amount ")
+                }
+
+            } else {
+                binding?.doneButton?.isEnabled = false
+            }
+
+        } else if (type=="股利" && subtype=="現金股利"){
+            if(amount != 0){
+                binding?.doneButton?.isEnabled = true
+                binding?.doneButton?.setOnClickListener {
+                    Utils.showToast(this@AddCopyActivity,"volume is $shares, price is $price , fee is $fee  and amount is $amount ")
+                }
+            } else {
+                binding?.doneButton?.isEnabled = false
+            }
+        } else if (type=="股利" && subtype=="股票股利"){
+            if(distributeShares != 0){
+                binding?.doneButton?.isEnabled = true
+                binding?.doneButton?.setOnClickListener {
+                    Utils.showToast(this@AddCopyActivity,"volume is $shares, price is $price and distributeVolume is $distributeShares ")
+                }
+            } else {
+                binding?.doneButton?.isEnabled = false
+            }
+
         }
 
     }
-
-
 
     private fun showDatePicker(){
         val calendar = Calendar.getInstance()
@@ -271,5 +430,141 @@ class AddCopyActivity : AppCompatActivity() {
         super.onDestroy()
         binding = null
     }
+
+    private fun transactionTypeCheck(){
+        binding?.typeToggleGroup?.addOnButtonCheckedListener { group, checkedId, isChecked ->
+
+            if(isChecked){
+                if(checkedId == binding?.type1Button?.id){
+
+                    type = "現股"
+                    subtype = "買進"
+
+                    binding?.subtype1Button?.text = "買進"
+                    binding?.subtype2Button?.text = "賣出"
+
+                    binding?.subtype1Button?.let { binding?.subtypeToggleGroup?.check(it.id) }
+
+                    binding?.amountLinearLayout?.visibility = View.VISIBLE
+                    binding?.feeLinearLayout?.visibility = View.VISIBLE
+                    binding?.taxLinearLayout?.visibility = View.GONE
+                    binding?.distributeLinearLayout?.visibility = View.GONE
+
+                    binding?.priceTextView?.text = "價格"
+                    binding?.sharesTextView?.text = "股數"
+                    binding?.distributeSharesTextView?.text = "交易金額"
+
+                } else if(checkedId == binding?.type2Button?.id){
+
+                    type = "股利"
+                    subtype = "現金股利"
+
+                    binding?.subtype1Button?.text = "現金股利"
+                    binding?.subtype2Button?.text = "股票股利"
+
+                    binding?.subtype1Button?.let { binding?.subtypeToggleGroup?.check(it.id) }
+
+                    binding?.amountLinearLayout?.visibility = View.VISIBLE
+                    binding?.feeLinearLayout?.visibility = View.VISIBLE
+                    binding?.taxLinearLayout?.visibility = View.GONE
+                    binding?.distributeLinearLayout?.visibility = View.GONE
+
+                    binding?.priceTextView?.text = "現金股利"
+                    binding?.sharesTextView?.text = "持有股數"
+                    binding?.distributeSharesTextView?.text = "配發金額"
+
+
+                }
+
+                Utils.showToast(this,"$type $subtype")
+                cleanNumber()
+            }
+        }
+        binding?.subtypeToggleGroup?.addOnButtonCheckedListener { group, checkedId, isChecked ->
+
+
+            if(isChecked){
+                if(checkedId == binding?.subtype1Button?.id){
+                    if(type == "現股"){
+                        subtype = "買進"
+
+                        binding?.amountLinearLayout?.visibility = View.VISIBLE
+                        binding?.feeLinearLayout?.visibility = View.VISIBLE
+                        binding?.taxLinearLayout?.visibility = View.GONE
+                        binding?.distributeLinearLayout?.visibility = View.GONE
+
+                        binding?.priceTextView?.text = "價格"
+                        binding?.sharesTextView?.text = "股數"
+                        binding?.distributeSharesTextView?.text = "交易金額"
+
+                    } else if(type == "股利") {
+                        subtype = "現金股利"
+
+                        binding?.amountLinearLayout?.visibility = View.VISIBLE
+                        binding?.feeLinearLayout?.visibility = View.VISIBLE
+                        binding?.taxLinearLayout?.visibility = View.GONE
+                        binding?.distributeLinearLayout?.visibility = View.GONE
+
+                        binding?.priceTextView?.text = "現金股利"
+                        binding?.sharesTextView?.text = "持有股數"
+                        binding?.distributeSharesTextView?.text = "配發金額"
+
+                    }
+
+                } else if (checkedId == binding?.subtype2Button?.id) {
+                    if(type == "現股"){
+                        type = "現股"
+                        subtype = "賣出"
+
+                        binding?.amountLinearLayout?.visibility = View.VISIBLE
+                        binding?.feeLinearLayout?.visibility = View.VISIBLE
+                        binding?.taxLinearLayout?.visibility = View.VISIBLE
+                        binding?.distributeLinearLayout?.visibility = View.GONE
+
+                        binding?.priceTextView?.text = "價格"
+                        binding?.sharesTextView?.text = "股數"
+                        binding?.distributeSharesTextView?.text = "交易金額"
+
+
+                    } else if (type == "股利") {
+                        type = "股利"
+                        subtype = "股票股利"
+
+                        binding?.amountLinearLayout?.visibility = View.GONE
+                        binding?.feeLinearLayout?.visibility = View.GONE
+                        binding?.taxLinearLayout?.visibility = View.GONE
+                        binding?.distributeLinearLayout?.visibility = View.VISIBLE
+
+                        binding?.priceTextView?.text = "股票股利"
+                        binding?.sharesTextView?.text = "持有股數"
+                        binding?.distributeSharesTextView?.text = "配發股數"
+
+                    }
+                }
+                Utils.showToast(this,"$type $subtype")
+                cleanNumber()
+
+            }
+
+        }
+
+    }
+
+    private fun cleanNumber(){
+        fee = 0
+        price = 0.0
+        tax = 0
+        amount = 0
+        shares = 0
+        distributeShares = 0
+
+        binding?.feeEditText?.setText("")
+        binding?.amountEditText?.setText("")
+        binding?.taxEditText?.setText("")
+        binding?.priceEditText?.setText("")
+        binding?.sharesEditText?.setText("")
+        binding?.distributeSharesEditText?.setText("")
+    }
+
 }
 

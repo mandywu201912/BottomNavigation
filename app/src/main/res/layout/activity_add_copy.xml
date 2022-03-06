@@ -66,14 +66,14 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
-                    <EditText
-                        android:id="@+id/stockEditText"
+                    <AutoCompleteTextView
+                        android:id="@+id/stockAutoCompleteTextView"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="2"
                         android:inputType="text"
                         android:hint="請輸入股名或股號"
-                        android:textColorHint="@color/textColor_addTitleGray"
+                        android:textColorHint="@color/textColor_hintDarkGray"
                         android:textColor="@color/textColor_addTextWhite"
                         android:textSize="18sp"
                         android:background="@android:color/transparent" />
@@ -247,6 +247,7 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/priceTextView"
                     android:layout_width="0dp"
                     android:layout_weight="2"
                     android:layout_height="match_parent"
@@ -268,7 +269,7 @@
                         android:layout_weight="2"
                         android:inputType="numberDecimal"
                         android:hint="請輸入價格"
-                        android:textColorHint="@color/textColor_addTitleGray"
+                        android:textColorHint="@color/textColor_hintDarkGray"
                         android:textColor="@color/textColor_addTextWhite"
                         android:textSize="18sp"
                         android:background="@android:color/transparent" />
@@ -298,6 +299,7 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/shares_text_view"
                     android:layout_width="0dp"
                     android:layout_weight="2"
                     android:layout_height="match_parent"
@@ -313,14 +315,14 @@
                     android:orientation="vertical">
 
                     <EditText
-                        android:id="@+id/volumeEditText"
+                        android:id="@+id/shares_edit_text"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="2"
                         android:inputType="number"
                         android:imeOptions="actionDone"
                         android:hint="請輸入股數"
-                        android:textColorHint="@color/textColor_addTitleGray"
+                        android:textColorHint="@color/textColor_hintDarkGray"
                         android:textColor="@color/textColor_addTextWhite"
                         android:textSize="18sp"
                         android:background="@android:color/transparent" />
@@ -365,7 +367,7 @@
                 android:layout_marginBottom="20dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/color_bottomNavigation"
+                app:cardBackgroundColor="@color/color_cardGray"
                 app:cardCornerRadius="10dp">
 
                 <LinearLayout
@@ -375,11 +377,13 @@
 
                     <!--手續費-->
                     <LinearLayout
+                        android:id="@+id/feeLinearLayout"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:layout_marginTop="20dp"
                         android:layout_marginStart="10dp"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:visibility="visible">
 
                         <TextView
                             android:layout_width="0dp"
@@ -472,16 +476,19 @@
                         </LinearLayout>
                     </LinearLayout>
 
-                    <!--交易金額-->
+                    <!--金額-->
                     <LinearLayout
+                        android:id="@+id/amountLinearLayout"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:layout_marginTop="10dp"
                         android:layout_marginBottom="20dp"
                         android:layout_marginStart="10dp"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:visibility="visible">
 
                         <TextView
+                            android:id="@+id/distribute_shares_text_view"
                             android:layout_width="0dp"
                             android:layout_weight="2"
                             android:layout_height="match_parent"
@@ -522,6 +529,58 @@
                         </LinearLayout>
                     </LinearLayout>
 
+                    <!--股數-->
+                    <LinearLayout
+                        android:id="@+id/distributeLinearLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="20dp"
+                        android:layout_marginStart="10dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="2"
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical"
+                            android:text="配發股數"
+                            android:textSize="18sp"
+                            android:textColor="@color/textColor_addTitleGray"/>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="4"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <EditText
+                                android:id="@+id/distribute_shares_edit_text"
+                                android:layout_width="match_parent"
+                                android:layout_height="0dp"
+                                android:layout_weight="2"
+                                android:inputType="number"
+                                android:hint="-"
+                                android:textColorHint="@color/textColor_addTitleGray"
+                                android:textColor="@color/textColor_addTextWhite"
+                                android:textSize="18sp"
+                                android:background="@android:color/transparent" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/color_editTextUnderlineDarkGray"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="2.5"
+                            android:layout_height="match_parent"
+                            android:gravity="center">
+                        </LinearLayout>
+                    </LinearLayout>
+
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
@@ -531,7 +590,7 @@
                 android:layout_marginBottom="100dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/color_bottomNavigation"
+                app:cardBackgroundColor="@color/color_cardGray"
                 app:cardCornerRadius="10dp">
 
                 <!--筆記-->
@@ -577,7 +636,7 @@
 
     </androidx.core.widget.NestedScrollView>
 
-<!--    完成-->
+    <!--    完成-->
     <LinearLayout
         android:id="@+id/bottomLinearLayout"
         android:layout_width="match_parent"
@@ -594,9 +653,9 @@
             android:layout_gravity="center"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            style="@style/buttonStyle"
             android:text="完成"
-            android:textSize="18dp"
-            android:textColor="@color/color_white"/>
+            android:textSize="18dp" />
 
 
     </LinearLayout>
