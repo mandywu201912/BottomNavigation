@@ -12,7 +12,7 @@ import com.bigmiracle.bottomnavigation.R
 
 class stockListAdapter(private val mContext: Context,
                        private val viewResourceId: Int,
-                       private val items: ArrayList<Stock>) : ArrayAdapter<Stock>(mContext, viewResourceId, items)  {
+                       private val items: ArrayList<Stock>) : ArrayAdapter<Stock>(mContext, viewResourceId, items) {
 
     private val itemsAll = items.clone() as ArrayList<Stock>
     private var suggestions = ArrayList<Stock>()

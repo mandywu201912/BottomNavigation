@@ -6,11 +6,17 @@ import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.View
+import androidx.lifecycle.lifecycleScope
+import androidx.room.TypeConverter
 import com.bigmiracle.bottomnavigation.Adapter.stockListAdapter
 import com.bigmiracle.bottomnavigation.Data.Datasource
+import com.bigmiracle.bottomnavigation.Database.Record.RecordDao
+import com.bigmiracle.bottomnavigation.Database.Record.RecordEntity
+import com.bigmiracle.bottomnavigation.Database.RecordApplication
 import com.bigmiracle.bottomnavigation.R
 import com.bigmiracle.bottomnavigation.Utils
 import com.bigmiracle.bottomnavigation.databinding.ActivityAddBinding
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -20,8 +26,11 @@ class AddActivity : BaseActivity() {
 
     private var binding: ActivityAddBinding? = null
 
+    private var stock: String = ""
     private var type: String = "現股"
     private var subtype: String = "買進"
+    private var transactionType: Int = 1
+    private var date: String = ""
 
     private var price: Double = 0.0
     private var shares: Int = 0
@@ -39,11 +48,8 @@ class AddActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityAddBinding.inflate(layoutInflater)
         setContentView(binding?.root)
-
-
 
         binding?.dateTextView?.setOnClickListener {
             showDatePicker()
@@ -52,6 +58,7 @@ class AddActivity : BaseActivity() {
         //輸入股名股號
         val stockList = Datasource().loadAllStocks()
         val adapter = stockListAdapter(this, R.layout.adapter_search_list_item, ArrayList(stockList))
+
         binding?.stockAutoCompleteTextView?.threshold = 1
         binding?.stockAutoCompleteTextView?.setAdapter(adapter)
 
@@ -299,11 +306,11 @@ class AddActivity : BaseActivity() {
 
         }
 
-        showDataAtEdittext()
+        showDataIntoEdittext()
         autoCalculate = false
     }
 
-    fun showDataAtEdittext(){
+    fun showDataIntoEdittext(){
 
         binding?.feeEditText?.setText(Utils.numberFormat(fee))
         binding?.amountEditText?.setText(Utils.numberFormat(amount))
@@ -331,14 +338,37 @@ class AddActivity : BaseActivity() {
         }
     }
 
+    private fun addRecord(recordDao: RecordDao){
+
+        val stockId: String
+        val stockName: String
+        val splitString = stock.split(" ")
+        stockId = splitString[0]
+        stockName = splitString[1]
+
+        lifecycleScope.launch {
+            recordDao.insert(RecordEntity(stockId = stockId, stockName = stockName, transactionType = transactionType, price = price, share = shares, fee = fee, tax = tax, distributionShares = distributeShares,amount = amount))
+        }
+
+        Utils.showToast(this@AddActivity,"新增紀錄成功")
+        finish()
+
+    }
+
+
     private fun doneButtonClickable(){
 
+        stock = binding?.stockAutoCompleteTextView?.text.toString()
+        val recordDao = (application as RecordApplication).database.recordDao()
+
+
         if(type=="現股" && subtype=="買進"){
-            if(price != 0.0 && amount != 0 && fee != 0 && shares != 0){
+            if(stock != "" && price != 0.0 && amount != 0 && fee != 0 && shares != 0){
 
                 binding?.doneButton?.isEnabled = true
                 binding?.doneButton?.setOnClickListener {
-                    Utils.showToast(this@AddActivity,"volume is $shares, price is $price , fee is $fee and amount is $amount ")
+                    amount = amount*-1
+                    addRecord(recordDao)
                 }
 
             } else {
@@ -347,11 +377,11 @@ class AddActivity : BaseActivity() {
 
         } else if (type=="現股" && subtype=="賣出"){
 
-            if(price != 0.0 && amount != 0 && fee != 0 && shares != 0 && tax!=0 ){
+            if(stock != "" && price != 0.0 && amount != 0 && fee != 0 && shares != 0 && tax!=0 ){
 
                 binding?.doneButton?.isEnabled = true
                 binding?.doneButton?.setOnClickListener {
-                    Utils.showToast(this@AddActivity,"volume is $shares, price is $price , fee is $fee , tax is $tax and amount is $amount ")
+                    addRecord(recordDao)
                 }
 
             } else {
@@ -359,19 +389,19 @@ class AddActivity : BaseActivity() {
             }
 
         } else if (type=="股利" && subtype=="現金股利"){
-            if(amount != 0){
+            if(stock != "" && amount != 0){
                 binding?.doneButton?.isEnabled = true
                 binding?.doneButton?.setOnClickListener {
-                    Utils.showToast(this@AddActivity,"volume is $shares, price is $price , fee is $fee  and amount is $amount ")
+                    addRecord(recordDao)
                 }
             } else {
                 binding?.doneButton?.isEnabled = false
             }
         } else if (type=="股利" && subtype=="股票股利"){
-            if(distributeShares != 0){
+            if(stock != "" && distributeShares != 0){
                 binding?.doneButton?.isEnabled = true
                 binding?.doneButton?.setOnClickListener {
-                    Utils.showToast(this@AddActivity,"volume is $shares, price is $price and distributeVolume is $distributeShares ")
+                    addRecord(recordDao)
                 }
             } else {
                 binding?.doneButton?.isEnabled = false
@@ -379,6 +409,21 @@ class AddActivity : BaseActivity() {
 
         }
 
+    }
+
+    @TypeConverter
+    fun fromTimestamp(timeStamp: Long?): String? {
+        return timeStamp?.let { FORMATTER.format(timeStamp) }
+    }
+
+    @TypeConverter
+    fun dateToTimestamp(timeStamp: String?): Long? {
+        return timeStamp?.let { FORMATTER.parse(it)?.time }
+    }
+
+    companion object{
+
+        val FORMATTER = SimpleDateFormat("yyyy/MM/dd")
     }
 
     private fun showDatePicker(){
@@ -395,11 +440,9 @@ class AddActivity : BaseActivity() {
                 val storeMonthOfYear = if((monthOfYear + 1)<10) "0${monthOfYear + 1}" else "${monthOfYear + 1}"
                 val selectedDate = "$year/$storeMonthOfYear/$storeDayOfMonth"
 
+
                 binding?.dateTextView?.setText(selectedDate)
 
-//                val simpleDateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.TAIWAN)
-//                val theDate = simpleDateFormat.parse(selectedDate)
-////                selectedDueDateMilliSeconds = theDate!!.time
             }, year, month, day
 
         )
@@ -432,6 +475,18 @@ class AddActivity : BaseActivity() {
         binding = null
     }
 
+    private fun transactionType(){
+        if(type =="現股" && subtype =="買進"){
+            transactionType = 1
+        } else if (type =="現股" && subtype =="賣出"){
+            transactionType = 2
+        } else if (type =="股利" && subtype =="現金股利"){
+            transactionType = 3
+        } else if(type =="股利" && subtype =="股票股利"){
+            transactionType = 4
+        }
+    }
+
     private fun transactionTypeCheck(){
         binding?.typeToggleGroup?.addOnButtonCheckedListener { group, checkedId, isChecked ->
 
@@ -440,6 +495,7 @@ class AddActivity : BaseActivity() {
 
                     type = "現股"
                     subtype = "買進"
+                    transactionType()
 
                     binding?.subtype1Button?.text = "買進"
                     binding?.subtype2Button?.text = "賣出"
@@ -459,6 +515,7 @@ class AddActivity : BaseActivity() {
 
                     type = "股利"
                     subtype = "現金股利"
+                    transactionType()
 
                     binding?.subtype1Button?.text = "現金股利"
                     binding?.subtype2Button?.text = "股票股利"
@@ -488,6 +545,7 @@ class AddActivity : BaseActivity() {
                 if(checkedId == binding?.subtype1Button?.id){
                     if(type == "現股"){
                         subtype = "買進"
+                        transactionType()
 
                         binding?.amountLinearLayout?.visibility = View.VISIBLE
                         binding?.feeLinearLayout?.visibility = View.VISIBLE
@@ -500,6 +558,7 @@ class AddActivity : BaseActivity() {
 
                     } else if(type == "股利") {
                         subtype = "現金股利"
+                        transactionType()
 
                         binding?.amountLinearLayout?.visibility = View.VISIBLE
                         binding?.feeLinearLayout?.visibility = View.VISIBLE
@@ -516,6 +575,7 @@ class AddActivity : BaseActivity() {
                     if(type == "現股"){
                         type = "現股"
                         subtype = "賣出"
+                        transactionType()
 
                         binding?.amountLinearLayout?.visibility = View.VISIBLE
                         binding?.feeLinearLayout?.visibility = View.VISIBLE
@@ -530,6 +590,7 @@ class AddActivity : BaseActivity() {
                     } else if (type == "股利") {
                         type = "股利"
                         subtype = "股票股利"
+                        transactionType()
 
                         binding?.amountLinearLayout?.visibility = View.GONE
                         binding?.feeLinearLayout?.visibility = View.GONE
@@ -544,11 +605,8 @@ class AddActivity : BaseActivity() {
                 }
                 Utils.showToast(this,"$type $subtype")
                 cleanNumber()
-
             }
-
         }
-
     }
 
     private fun cleanNumber(){

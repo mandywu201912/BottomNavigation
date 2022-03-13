@@ -16,4 +16,7 @@
     <color name="textColor_addTextWhite">#DFDFDF</color>
     <color name="color_white">#FFFFFFFF</color>
 
+    <color name="color_red">#E45851</color>
+    <color name="color_green">#56A35C</color>
+
 </resources>
