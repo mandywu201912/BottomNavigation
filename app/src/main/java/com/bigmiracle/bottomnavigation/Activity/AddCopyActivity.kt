@@ -330,9 +330,6 @@ class AddCopyActivity : BaseActivity() {
         }
     }
 
-    private fun forGit(){
-        val change
-    }
 
     private fun doneButtonClickable(){
 

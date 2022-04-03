@@ -15,8 +15,6 @@ import com.bigmiracle.bottomnavigation.Database.HoldingEntity
 import com.bigmiracle.bottomnavigation.Database.RecordEntity
 import com.bigmiracle.bottomnavigation.R
 import com.bigmiracle.bottomnavigation.Utils
-import com.bigmiracle.bottomnavigation.ViewModels.DataViewModel
-import com.bigmiracle.bottomnavigation.ViewModels.DataViewModelFactory
 import com.bigmiracle.bottomnavigation.databinding.ActivityAddBinding
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -27,12 +25,6 @@ import kotlin.collections.ArrayList
 class AddActivity : BaseActivity() {
 
 
-    lateinit var recordEntity: RecordEntity
-    private val viewModel: DataViewModel {
-        DataViewModelFactory(
-            (activit)
-        )
-    }
 
     private var binding: ActivityAddBinding? = null
 
@@ -389,7 +381,7 @@ class AddActivity : BaseActivity() {
         stockIdAndStockName()
 
         when (transactionTypeCode) {
-            1 -> lifecycleScope.launch { dataDao.insert(HoldingEntity(
+            1 -> lifecycleScope.launch { dataDao.insertHolding(HoldingEntity(
                 stockId = stockId,
                 stockName = stockName,
                 transactionTypeCode = transactionTypeCode,
@@ -401,7 +393,7 @@ class AddActivity : BaseActivity() {
                 averagePrice = amount.toDouble()/shares.toDouble(),
                 date = date)) }
 
-            4 -> lifecycleScope.launch { dataDao.insert(HoldingEntity(
+            4 -> lifecycleScope.launch { dataDao.insertHolding(HoldingEntity(
                 stockId = stockId,
                 stockName = stockName,
                 transactionTypeCode = transactionTypeCode,
@@ -424,7 +416,7 @@ class AddActivity : BaseActivity() {
 
 
         when (transactionTypeCode) {
-            1 -> lifecycleScope.launch { dataDao.insert(RecordEntity(
+            1 -> lifecycleScope.launch { dataDao.insertRecord(RecordEntity(
                 stockId = stockId,
                 stockName = stockName,
                 transactionTypeCode = transactionTypeCode,
@@ -436,7 +428,7 @@ class AddActivity : BaseActivity() {
                 outcome = amount,
                 date = date)) }
 
-            2 -> lifecycleScope.launch { dataDao.insert(RecordEntity(
+            2 -> lifecycleScope.launch { dataDao.insertRecord(RecordEntity(
                 stockId = stockId,
                 stockName = stockName,
                 transactionTypeCode = transactionTypeCode,
@@ -448,7 +440,7 @@ class AddActivity : BaseActivity() {
                 income = amount,
                 date = date)) }
 
-            3 -> lifecycleScope.launch { dataDao.insert(RecordEntity(
+            3 -> lifecycleScope.launch { dataDao.insertRecord(RecordEntity(
                 stockId = stockId,
                 stockName = stockName,
                 transactionTypeCode = transactionTypeCode,
@@ -460,7 +452,7 @@ class AddActivity : BaseActivity() {
                 income = amount,
                 date = date)) }
 
-            4 -> lifecycleScope.launch { dataDao.insert(RecordEntity(
+            4 -> lifecycleScope.launch { dataDao.insertRecord(RecordEntity(
                 stockId = stockId,
                 stockName = stockName,
                 transactionTypeCode = transactionTypeCode,
@@ -483,15 +475,16 @@ class AddActivity : BaseActivity() {
 
         stock = binding?.stockAutoCompleteTextView?.text.toString()
 
-        val splitString = stock.split(" ")
-        stockId = splitString[0]
-        stockName = splitString[1]
+        if(stock.isNotEmpty()){
+            val splitString = stock.split(" ")
+            stockId = splitString[0]
+            stockName = splitString[1]
+        }
+
     }
 
 
-    private fun isType1EntryValid(): Boolean {
-        return viewModel
-    }
+
 
 
 
