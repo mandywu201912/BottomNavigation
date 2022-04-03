@@ -330,6 +330,10 @@ class AddCopyActivity : BaseActivity() {
         }
     }
 
+    private fun forGit(){
+        val change
+    }
+
     private fun doneButtonClickable(){
 
         if(type=="現股" && subtype=="買進"){
