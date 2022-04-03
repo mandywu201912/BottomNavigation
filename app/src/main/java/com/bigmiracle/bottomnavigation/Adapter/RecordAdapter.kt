@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bigmiracle.bottomnavigation.Database.Record.RecordEntity
+import com.bigmiracle.bottomnavigation.Database.RecordEntity
 import com.bigmiracle.bottomnavigation.R
 import com.bigmiracle.bottomnavigation.Utils
 import com.bigmiracle.bottomnavigation.databinding.AdapterRecordItemBinding
@@ -48,23 +48,32 @@ class RecordAdapter(
     }
 
 
+
+
     class RecordViewHolder(
         private var binding: AdapterRecordItemBinding
     ): RecyclerView.ViewHolder(binding.root){
 
         fun bind(recordEntity: RecordEntity){
-            when(recordEntity.transactionType){
+            when(recordEntity.transactionTypeCode){
                 1-> binding.typeImage.setImageResource(R.drawable.type_stock_buy)
                 2-> binding.typeImage.setImageResource(R.drawable.type_stock_sell)
                 3-> binding.typeImage.setImageResource(R.drawable.type_dividend_cash)
                 4-> binding.typeImage.setImageResource(R.drawable.type_dividend_stock)
             }
 
+            when(recordEntity.transactionTypeCode){
+                1-> binding?.stockAmountTextView.text = Utils.numberFormat(recordEntity.outcome)
+                2-> binding?.stockAmountTextView.text = Utils.numberFormat(recordEntity.income)
+                3-> binding?.stockAmountTextView.text = Utils.numberFormat(recordEntity.income)
+            }
+
             binding?.stockIdTextView.text = recordEntity.stockId
             binding?.stockNameTextView.text = recordEntity.stockName
             binding?.stockPriceTextView.text = recordEntity.price.toString()
             binding?.stockSharesTextView.text = recordEntity.share.toString()
-            binding?.stockAmountTextView.text = Utils.numberFormat(recordEntity.amount)
+//            binding?.stockAmountTextView.text = Utils.numberFormat(recordEntity.amount)
+            binding?.dateTextView.text = recordEntity.date
         }
     }
 }

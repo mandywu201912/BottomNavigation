@@ -4,23 +4,25 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.bigmiracle.bottomnavigation.Database.Record.RecordDao
-import com.bigmiracle.bottomnavigation.Database.Record.RecordEntity
+import androidx.room.TypeConverters
+import com.bigmiracle.bottomnavigation.Converters
 
-@Database(entities = arrayOf(RecordEntity::class), version = 1)
-abstract class RecordDatabase: RoomDatabase() {
-    abstract fun recordDao(): RecordDao
+@Database(entities = [RecordEntity::class,HoldingEntity::class,ClosedEntity::class], version = 5)
+@TypeConverters(Converters::class)
+abstract class AppDatabase: RoomDatabase() {
+    abstract fun dataDao():DataDao
 
     companion object {
         @Volatile
-        private var INSTANCE: RecordDatabase? = null
+        private var INSTANCE: AppDatabase? = null
 
-        fun getDatabase(context: Context): RecordDatabase {
+
+        fun getDatabase(context: Context):AppDatabase {
             return INSTANCE ?: synchronized(this){
                 val instance = Room.databaseBuilder(
                     context,
-                    RecordDatabase::class.java,
-                    "record_database")
+                    AppDatabase::class.java,
+                    "app_database")
                     .fallbackToDestructiveMigration()
                     .build()
 

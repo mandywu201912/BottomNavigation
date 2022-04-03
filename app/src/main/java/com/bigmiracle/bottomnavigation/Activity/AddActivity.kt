@@ -7,14 +7,16 @@ import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.View
 import androidx.lifecycle.lifecycleScope
-import androidx.room.TypeConverter
 import com.bigmiracle.bottomnavigation.Adapter.stockListAdapter
 import com.bigmiracle.bottomnavigation.Data.Datasource
-import com.bigmiracle.bottomnavigation.Database.Record.RecordDao
-import com.bigmiracle.bottomnavigation.Database.Record.RecordEntity
-import com.bigmiracle.bottomnavigation.Database.RecordApplication
+import com.bigmiracle.bottomnavigation.Database.Application
+import com.bigmiracle.bottomnavigation.Database.DataDao
+import com.bigmiracle.bottomnavigation.Database.HoldingEntity
+import com.bigmiracle.bottomnavigation.Database.RecordEntity
 import com.bigmiracle.bottomnavigation.R
 import com.bigmiracle.bottomnavigation.Utils
+import com.bigmiracle.bottomnavigation.ViewModels.DataViewModel
+import com.bigmiracle.bottomnavigation.ViewModels.DataViewModelFactory
 import com.bigmiracle.bottomnavigation.databinding.ActivityAddBinding
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -24,12 +26,24 @@ import kotlin.collections.ArrayList
 
 class AddActivity : BaseActivity() {
 
+
+    lateinit var recordEntity: RecordEntity
+    private val viewModel: DataViewModel {
+        DataViewModelFactory(
+            (activit)
+        )
+    }
+
     private var binding: ActivityAddBinding? = null
 
     private var stock: String = ""
+    private var stockId: String = ""
+    private var stockName: String = ""
+
     private var type: String = "現股"
     private var subtype: String = "買進"
-    private var transactionType: Int = 1
+    private var transactionTypeCode: Int = 1
+    private var transactionType:String = "現股買進"
     private var date: String = ""
 
     private var price: Double = 0.0
@@ -37,6 +51,8 @@ class AddActivity : BaseActivity() {
     private var fee: Int = 0
     private var tax: Int = 0
     private var amount: Int = 0
+    private var income: Int = 0
+    private var outcome: Int = 0
     private var distributeShares: Int = 0
     private var value: Double = 0.0
 
@@ -44,6 +60,8 @@ class AddActivity : BaseActivity() {
     private var minimumFee: Int = 20
 
     private var autoCalculate: Boolean = false
+
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,6 +98,7 @@ class AddActivity : BaseActivity() {
 
     }
 
+    //編輯滑動畫面
     private fun scrollWhenPressEditText(){
         binding?.noteEditText?.setOnFocusChangeListener { v, hasFocus ->
             if(hasFocus){
@@ -168,13 +187,16 @@ class AddActivity : BaseActivity() {
                 if(!autoCalculate){
                     if(type == "現股"&& subtype == "買進"){
                         amount = (price*shares.toDouble()).toInt()+fee
+                        outcome = amount
                         binding?.amountEditText?.setText(Utils.numberFormat(amount))
                     } else if (type == "現股"&& subtype == "賣出"){
                         amount = (price*shares.toDouble()).toInt()-fee-tax
+                        income = amount
                         binding?.amountEditText?.setText(Utils.numberFormat(amount))
 
                     } else if (type == "股利"&& subtype == "現金股利"){
                         amount = (price*shares.toDouble()).toInt()-fee
+                        income = amount
                         binding?.amountEditText?.setText(Utils.numberFormat(amount))
 
                     }
@@ -276,6 +298,7 @@ class AddActivity : BaseActivity() {
                 }
 
                 amount =(value + fee).toInt()
+                outcome = amount
 
             } else if (type=="現股" && subtype=="賣出"){
 
@@ -288,10 +311,12 @@ class AddActivity : BaseActivity() {
                 tax = (value*0.003).toInt()
 
                 amount = (value-fee-tax).toInt()
+                income = amount
 
             } else if (type=="股利" && subtype=="現金股利"){
                 fee = 10
                 amount =(value - fee).toInt()
+                income = amount
 
             } else if (type=="股利" && subtype=="股票股利"){
                 distributeShares = (price/10.0*shares).toInt()
@@ -310,8 +335,8 @@ class AddActivity : BaseActivity() {
         autoCalculate = false
     }
 
+    //format形式
     fun showDataIntoEdittext(){
-
         binding?.feeEditText?.setText(Utils.numberFormat(fee))
         binding?.amountEditText?.setText(Utils.numberFormat(amount))
         binding?.taxEditText?.setText(Utils.numberFormat(tax))
@@ -320,8 +345,8 @@ class AddActivity : BaseActivity() {
         doneButtonClickable()
     }
 
+    //股數的加減按鈕
     private fun sharesButtonClick(){
-
         binding?.minusButton?.setOnClickListener {
             if(shares >= 1000){
                 shares -= 1000
@@ -329,7 +354,6 @@ class AddActivity : BaseActivity() {
                 shares = 0
             }
             binding?.sharesEditText?.setText(Utils.numberFormat(shares))
-
         }
 
         binding?.plusButton?.setOnClickListener {
@@ -338,16 +362,54 @@ class AddActivity : BaseActivity() {
         }
     }
 
-    private fun addRecord(recordDao: RecordDao){
+    private fun addClosed(dataDao: DataDao){
+        //先確認有沒有庫存
+        //確認庫存夠不夠
+        //先進先出
 
-        val stockId: String
-        val stockName: String
-        val splitString = stock.split(" ")
-        stockId = splitString[0]
-        stockName = splitString[1]
+        stockIdAndStockName()
 
-        lifecycleScope.launch {
-            recordDao.insert(RecordEntity(stockId = stockId, stockName = stockName, transactionType = transactionType, price = price, share = shares, fee = fee, tax = tax, distributionShares = distributeShares,amount = amount))
+
+//
+//        lifecycleScope.launch {
+//            var dataList: Flow<List<HoldingEntity>> = dataDao.fetchHoldingByStockId(stockId)
+//            Log.i("closed", "$dataList")
+//
+//
+//        }
+
+
+        finish()
+
+    }
+
+
+    private fun addHolding(dataDao: DataDao){
+
+        stockIdAndStockName()
+
+        when (transactionTypeCode) {
+            1 -> lifecycleScope.launch { dataDao.insert(HoldingEntity(
+                stockId = stockId,
+                stockName = stockName,
+                transactionTypeCode = transactionTypeCode,
+                transactionType = transactionType,
+                price = price,
+                share = shares,
+                fee = fee,
+                outcome = amount,
+                averagePrice = amount.toDouble()/shares.toDouble(),
+                date = date)) }
+
+            4 -> lifecycleScope.launch { dataDao.insert(HoldingEntity(
+                stockId = stockId,
+                stockName = stockName,
+                transactionTypeCode = transactionTypeCode,
+                transactionType = transactionType,
+                share = distributeShares,
+                fee = fee,
+                date = date)) }
+
         }
 
         Utils.showToast(this@AddActivity,"新增紀錄成功")
@@ -355,11 +417,88 @@ class AddActivity : BaseActivity() {
 
     }
 
+    //新增紀錄
+    private fun addRecord(dataDao: DataDao){
+
+        stockIdAndStockName()
+
+
+        when (transactionTypeCode) {
+            1 -> lifecycleScope.launch { dataDao.insert(RecordEntity(
+                stockId = stockId,
+                stockName = stockName,
+                transactionTypeCode = transactionTypeCode,
+                transactionType = transactionType,
+                price = price,
+                share = shares,
+                fee = fee,
+                tax = tax,
+                outcome = amount,
+                date = date)) }
+
+            2 -> lifecycleScope.launch { dataDao.insert(RecordEntity(
+                stockId = stockId,
+                stockName = stockName,
+                transactionTypeCode = transactionTypeCode,
+                transactionType = transactionType,
+                price = price,
+                share = shares,
+                fee = fee,
+                tax = tax,
+                income = amount,
+                date = date)) }
+
+            3 -> lifecycleScope.launch { dataDao.insert(RecordEntity(
+                stockId = stockId,
+                stockName = stockName,
+                transactionTypeCode = transactionTypeCode,
+                transactionType = transactionType,
+                price = price,
+                share = shares,
+                fee = fee,
+                tax = tax,
+                income = amount,
+                date = date)) }
+
+            4 -> lifecycleScope.launch { dataDao.insert(RecordEntity(
+                stockId = stockId,
+                stockName = stockName,
+                transactionTypeCode = transactionTypeCode,
+                transactionType = transactionType,
+                price = price,
+                share = shares,
+                fee = fee,
+                tax = tax,
+                distributionShares = distributeShares,
+                date = date)) }
+
+        }
+
+        Utils.showToast(this@AddActivity,"新增紀錄成功")
+        finish()
+
+    }
+
+    private fun stockIdAndStockName(){
+
+        stock = binding?.stockAutoCompleteTextView?.text.toString()
+
+        val splitString = stock.split(" ")
+        stockId = splitString[0]
+        stockName = splitString[1]
+    }
+
+
+    private fun isType1EntryValid(): Boolean {
+        return viewModel
+    }
+
+
 
     private fun doneButtonClickable(){
 
-        stock = binding?.stockAutoCompleteTextView?.text.toString()
-        val recordDao = (application as RecordApplication).database.recordDao()
+        stockIdAndStockName()
+        val dataDao = (application as Application).database.dataDao()
 
 
         if(type=="現股" && subtype=="買進"){
@@ -367,8 +506,11 @@ class AddActivity : BaseActivity() {
 
                 binding?.doneButton?.isEnabled = true
                 binding?.doneButton?.setOnClickListener {
-                    amount = amount*-1
-                    addRecord(recordDao)
+                    outcome = amount
+                    addRecord(dataDao)
+                    addHolding(dataDao)
+
+                    addClosed(dataDao)
                 }
 
             } else {
@@ -381,7 +523,8 @@ class AddActivity : BaseActivity() {
 
                 binding?.doneButton?.isEnabled = true
                 binding?.doneButton?.setOnClickListener {
-                    addRecord(recordDao)
+                    income = amount
+                    addRecord(dataDao)
                 }
 
             } else {
@@ -392,7 +535,8 @@ class AddActivity : BaseActivity() {
             if(stock != "" && amount != 0){
                 binding?.doneButton?.isEnabled = true
                 binding?.doneButton?.setOnClickListener {
-                    addRecord(recordDao)
+                    income = amount
+                    addRecord(dataDao)
                 }
             } else {
                 binding?.doneButton?.isEnabled = false
@@ -401,30 +545,15 @@ class AddActivity : BaseActivity() {
             if(stock != "" && distributeShares != 0){
                 binding?.doneButton?.isEnabled = true
                 binding?.doneButton?.setOnClickListener {
-                    addRecord(recordDao)
+                    addRecord(dataDao)
+                    addHolding(dataDao)
                 }
             } else {
                 binding?.doneButton?.isEnabled = false
             }
-
         }
-
     }
 
-    @TypeConverter
-    fun fromTimestamp(timeStamp: Long?): String? {
-        return timeStamp?.let { FORMATTER.format(timeStamp) }
-    }
-
-    @TypeConverter
-    fun dateToTimestamp(timeStamp: String?): Long? {
-        return timeStamp?.let { FORMATTER.parse(it)?.time }
-    }
-
-    companion object{
-
-        val FORMATTER = SimpleDateFormat("yyyy/MM/dd")
-    }
 
     private fun showDatePicker(){
         val calendar = Calendar.getInstance()
@@ -440,8 +569,8 @@ class AddActivity : BaseActivity() {
                 val storeMonthOfYear = if((monthOfYear + 1)<10) "0${monthOfYear + 1}" else "${monthOfYear + 1}"
                 val selectedDate = "$year/$storeMonthOfYear/$storeDayOfMonth"
 
-
                 binding?.dateTextView?.setText(selectedDate)
+                date = selectedDate
 
             }, year, month, day
 
@@ -454,6 +583,7 @@ class AddActivity : BaseActivity() {
         var simpleDateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.TAIWAN)
         var todayDate = simpleDateFormat.format(System.currentTimeMillis())
         binding?.dateTextView?.setText(todayDate)
+        date = todayDate
 
     }
 
@@ -477,13 +607,17 @@ class AddActivity : BaseActivity() {
 
     private fun transactionType(){
         if(type =="現股" && subtype =="買進"){
-            transactionType = 1
+            transactionTypeCode = 1
+            transactionType = type+subtype
         } else if (type =="現股" && subtype =="賣出"){
-            transactionType = 2
+            transactionTypeCode = 2
+            transactionType = type+subtype
         } else if (type =="股利" && subtype =="現金股利"){
-            transactionType = 3
+            transactionTypeCode = 3
+            transactionType = subtype
         } else if(type =="股利" && subtype =="股票股利"){
-            transactionType = 4
+            transactionTypeCode = 4
+            transactionType = subtype
         }
     }
 
@@ -616,6 +750,8 @@ class AddActivity : BaseActivity() {
         amount = 0
         shares = 0
         distributeShares = 0
+        income = 0
+        outcome = 0
 
         binding?.feeEditText?.setText("")
         binding?.amountEditText?.setText("")

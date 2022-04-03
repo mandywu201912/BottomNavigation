@@ -10,9 +10,9 @@ import androidx.lifecycle.coroutineScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bigmiracle.bottomnavigation.Adapter.RecordAdapter
-import com.bigmiracle.bottomnavigation.Database.RecordApplication
-import com.bigmiracle.bottomnavigation.ViewModels.RecordViewModel
-import com.bigmiracle.bottomnavigation.ViewModels.RecordViewModelFactory
+import com.bigmiracle.bottomnavigation.Database.Application
+import com.bigmiracle.bottomnavigation.ViewModels.DataViewModel
+import com.bigmiracle.bottomnavigation.ViewModels.DataViewModelFactory
 import com.bigmiracle.bottomnavigation.databinding.FragmentSecondBinding
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -23,9 +23,9 @@ public class SecondFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
 
-    private val viewModel: RecordViewModel by activityViewModels {
-        RecordViewModelFactory(
-            (activity?.application as RecordApplication).database.recordDao()
+    private val viewModel: DataViewModel by activityViewModels {
+        DataViewModelFactory(
+            (activity?.application as Application).database.dataDao()
         )
     }
 
