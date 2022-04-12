@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.bigmiracle.bottomnavigation.Converters
 
-@Database(entities = [RecordEntity::class,HoldingEntity::class,ClosedEntity::class], version = 5)
+@Database(entities = [RecordEntity::class,HoldingEntity::class,ClosedEntity::class], version = 6)
 @TypeConverters(Converters::class)
 abstract class AppDatabase: RoomDatabase() {
     abstract fun dataDao():DataDao

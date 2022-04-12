@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,14 +7,17 @@
     android:background="@color/color_black"
     tools:context=".FirstFragment">
 
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:text="類型"
+        android:textSize="32sp"
+        android:gravity="center"
+        android:textColor="@color/color_white" />
 
 
 
 
-
-
-
-
-
-
-</FrameLayout>
+</LinearLayout>

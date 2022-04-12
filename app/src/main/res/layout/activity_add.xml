@@ -292,7 +292,7 @@
             <!--股數-->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="80dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="20dp"
                 android:layout_marginStart="10dp"
@@ -302,7 +302,7 @@
                     android:id="@+id/shares_text_view"
                     android:layout_width="0dp"
                     android:layout_weight="2"
-                    android:layout_height="match_parent"
+                    android:layout_height="50dp"
                     android:gravity="center_vertical"
                     android:text="股數"
                     android:textSize="18sp"
@@ -311,14 +311,13 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_weight="4"
-                    android:layout_height="match_parent"
+                    android:layout_height="80dp"
                     android:orientation="vertical">
 
                     <EditText
                         android:id="@+id/shares_edit_text"
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="2"
+                        android:layout_height="50dp"
                         android:inputType="number"
                         android:imeOptions="actionDone"
                         android:hint="請輸入股數"
@@ -331,12 +330,44 @@
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:background="@color/color_editTextUnderlineDarkGray"/>
+
+                    <LinearLayout
+                        android:id="@+id/holdingSharesLinearLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:visibility="gone"
+                        tools:visibility="visible"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="0.8"
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical"
+                            android:text="庫存股數:"
+                            android:textSize="14sp"
+                            android:textColor="@color/colorPrimary" />
+
+                        <TextView
+                            android:id="@+id/holdingSharesText"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical"
+                            android:text="0"
+                            android:textSize="14sp"
+                            android:textColor="@color/colorPrimary" />
+
+
+
+                    </LinearLayout>
+
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_weight="2.5"
-                    android:layout_height="match_parent"
+                    android:layout_height="50dp"
                     android:orientation="horizontal"
                     android:gravity="center">
 

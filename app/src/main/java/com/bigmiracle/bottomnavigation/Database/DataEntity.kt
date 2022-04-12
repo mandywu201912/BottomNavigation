@@ -90,17 +90,17 @@ data class ClosedEntity(
     @ColumnInfo(name = "賣出手續費")
     val sellFee: Int = 0,
 
-    @ColumnInfo(name = "賣出交易稅")
+    @ColumnInfo(name = "交易稅")
     val tax: Int = 0,
 
     @ColumnInfo(name = "收入")
     val income: Int = 0,
 
     @ColumnInfo(name = "已實現損益")
-    val realizedProfit: Int = 0,
+    val profit: Int = 0,
 
     @ColumnInfo(name = "已實現損益率")
-    val realizedProfitRatio: Int = 0,
+    val profitRatio: Double = 0.0,
 
 
 

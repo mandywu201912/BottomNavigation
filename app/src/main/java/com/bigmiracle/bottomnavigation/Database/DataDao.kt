@@ -6,25 +6,25 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface DataDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRecord(recordEntity: RecordEntity)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHolding(HoldingEntity: HoldingEntity)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertClosed(ClosedEntity: ClosedEntity)
 
 
 
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateRecord(recordEntity: RecordEntity)
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateHolding(holdingEntity: HoldingEntity)
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateClosed(closedEntity: ClosedEntity)
 
 
@@ -62,5 +62,15 @@ interface DataDao {
 
     @Query("SELECT * FROM `closed-table` where 股票代號 = :id")
     fun getClosedByStockId(id: String): Flow<List<ClosedEntity>>
+
+
+    //取得股票的庫存股數
+    @Query("SELECT SUM(股數) FROM `holding-table` where 股票代號 = :id")
+    fun getSumSharesByStockId(id: String): Flow<Int>
+
+    @Query("SELECT SUM(股數) FROM `holding-table`")
+    fun getSumShares(): Flow<Int>
+
+
 
 }

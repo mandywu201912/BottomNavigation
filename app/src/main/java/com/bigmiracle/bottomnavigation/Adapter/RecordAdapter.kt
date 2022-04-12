@@ -9,6 +9,8 @@ import com.bigmiracle.bottomnavigation.Database.RecordEntity
 import com.bigmiracle.bottomnavigation.R
 import com.bigmiracle.bottomnavigation.Utils
 import com.bigmiracle.bottomnavigation.databinding.AdapterRecordItemBinding
+import java.text.SimpleDateFormat
+import java.util.*
 
 class RecordAdapter(
     private val onItemClicked: (RecordEntity) -> Unit
@@ -73,7 +75,16 @@ class RecordAdapter(
             binding?.stockPriceTextView.text = recordEntity.price.toString()
             binding?.stockSharesTextView.text = recordEntity.share.toString()
 //            binding?.stockAmountTextView.text = Utils.numberFormat(recordEntity.amount)
-            binding?.dateTextView.text = recordEntity.date
+
+            var date = recordEntity.date
+
+            var simpleDateFormat = SimpleDateFormat("yyyyMMdd", Locale.TAIWAN)
+
+            var dateParse = simpleDateFormat.parse(date)
+
+            var simpleDateFormat2 = SimpleDateFormat("yyyy/MM/dd", Locale.TAIWAN)
+
+            binding?.dateTextView.text = simpleDateFormat2.format(dateParse)
         }
     }
 }

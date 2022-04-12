@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.coroutineScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bigmiracle.bottomnavigation.Adapter.RecordAdapter
@@ -14,8 +13,6 @@ import com.bigmiracle.bottomnavigation.Database.Application
 import com.bigmiracle.bottomnavigation.ViewModels.DataViewModel
 import com.bigmiracle.bottomnavigation.ViewModels.DataViewModelFactory
 import com.bigmiracle.bottomnavigation.databinding.FragmentSecondBinding
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 
 public class SecondFragment : Fragment() {
 
@@ -62,11 +59,17 @@ public class SecondFragment : Fragment() {
 //        })
         recyclerView.adapter = recordAdapter
 
-        lifecycle.coroutineScope.launch {
-            viewModel.fullRecord().collect {
+        viewModel.allRecords.observe(this.viewLifecycleOwner){ RecordEntity ->
+            RecordEntity.let {
                 recordAdapter.submitList(it)
             }
         }
+
+//        lifecycle.coroutineScope.launch {
+//            viewModel.fullRecord().collect {
+//                recordAdapter.submitList(it)
+//            }
+//        }
     }
 
 

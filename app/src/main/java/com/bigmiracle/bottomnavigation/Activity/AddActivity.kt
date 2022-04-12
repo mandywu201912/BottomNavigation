@@ -6,16 +6,18 @@ import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.View
-import androidx.lifecycle.lifecycleScope
+import androidx.activity.viewModels
+import androidx.lifecycle.coroutineScope
 import com.bigmiracle.bottomnavigation.Adapter.stockListAdapter
 import com.bigmiracle.bottomnavigation.Data.Datasource
 import com.bigmiracle.bottomnavigation.Database.Application
-import com.bigmiracle.bottomnavigation.Database.DataDao
-import com.bigmiracle.bottomnavigation.Database.HoldingEntity
 import com.bigmiracle.bottomnavigation.Database.RecordEntity
 import com.bigmiracle.bottomnavigation.R
 import com.bigmiracle.bottomnavigation.Utils
+import com.bigmiracle.bottomnavigation.ViewModels.DataViewModel
+import com.bigmiracle.bottomnavigation.ViewModels.DataViewModelFactory
 import com.bigmiracle.bottomnavigation.databinding.ActivityAddBinding
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -24,6 +26,13 @@ import kotlin.collections.ArrayList
 
 class AddActivity : BaseActivity() {
 
+    lateinit var recordEntity: RecordEntity
+
+    private val viewModel: DataViewModel by viewModels {
+        DataViewModelFactory(
+            (this.application as Application).database.dataDao()
+        )
+    }
 
 
     private var binding: ActivityAddBinding? = null
@@ -47,6 +56,8 @@ class AddActivity : BaseActivity() {
     private var outcome: Int = 0
     private var distributeShares: Int = 0
     private var value: Double = 0.0
+
+    private var holdingShare: Int = 0
 
     private var feeDiscount = 0.65
     private var minimumFee: Int = 20
@@ -88,7 +99,421 @@ class AddActivity : BaseActivity() {
         sharesButtonClick()
         doneButtonClickable()
 
+
     }
+
+    private fun stockIdAndStockName(){
+
+        stock = binding?.stockAutoCompleteTextView?.text.toString()
+
+        if(stock.isNotEmpty()){
+            val splitString = stock.split(" ")
+            stockId = splitString[0]
+            stockName = splitString[1]
+        }
+
+    }
+
+
+    //現股買進viewModel
+    private fun isBuyEntryValid(): Boolean {
+        return viewModel.isBuyEntryValid(
+            stockId,stockName,price,shares,fee,outcome
+        )
+    }
+
+
+
+
+
+    private fun addBuyRecord(){
+        if(isBuyEntryValid()){
+
+            var averagePrice = outcome.toDouble()/shares.toDouble()
+            viewModel.addNewRecord(stockId,stockName,transactionTypeCode,transactionType,price,shares,fee,tax,outcome,income,distributeShares,date)
+            viewModel.addNewHolding(stockId,stockName,transactionTypeCode,transactionType,price,shares,fee,outcome,averagePrice,date)
+
+        }
+    }
+
+    //現股賣出viewModel
+    private fun isSellEntryValid(): Boolean {
+        return viewModel.isSellEntryValid(
+            stockId,stockName,price,shares,fee,income,tax
+        )
+    }
+
+    private fun calculateProfit(){
+
+        var holdingOutcome: Int = 0
+
+        var profit: Int = 0
+        var profitRatio: Double = 0.0
+
+        profit = income - holdingOutcome
+        profitRatio = profit.toDouble() / holdingOutcome.toDouble()
+
+    }
+
+
+
+    private fun addSellRecord(){
+        if(isSellEntryValid()){
+            val buyAveragePrice = 0.0
+            val buyFee = 0
+            val profit = 0
+            val profitRatio = 0.0
+
+            viewModel.addNewRecord(stockId,stockName,transactionTypeCode,transactionType,price,shares,fee,tax,outcome,income,distributeShares,date)
+            viewModel.addNewClosed(stockId, stockName, transactionTypeCode,transactionType,buyAveragePrice,shares,buyFee,outcome,price,fee,tax,income,profit,profitRatio,date)
+
+        }
+    }
+
+    //現金股利viewModel
+    private fun isCashDividendEntryValid(): Boolean {
+        return viewModel.isCashDividendEntryValid(
+            stockId,stockName,income
+        )
+    }
+
+    private fun addCashDividendRecord(){
+        if(isCashDividendEntryValid()){
+            viewModel.addNewRecord(stockId,stockName,transactionTypeCode,transactionType,price,shares,fee,tax,outcome,income,distributeShares,date)
+
+        }
+    }
+
+    //股票股利viewModel
+    private fun isStockDividendEntryValid(): Boolean {
+        return viewModel.isStockDividendEntryValid(
+            stockId,stockName,distributeShares
+        )
+    }
+
+    private fun addStockDividendRecord(){
+        if(isStockDividendEntryValid()){
+            var averagePrice = outcome.toDouble()/shares.toDouble()
+            viewModel.addNewRecord(stockId,stockName,transactionTypeCode,transactionType,price,shares,fee,tax,outcome,income,distributeShares,date)
+            viewModel.addNewHolding(stockId,stockName,transactionTypeCode,transactionType,price,shares,fee,outcome,averagePrice,date)
+
+        }
+    }
+
+    private fun showHoldingShares(){
+        stockIdAndStockName()
+        if(stockId != null && transactionTypeCode == 2){
+
+            lifecycle.coroutineScope.launch {
+                viewModel.getSumSharesByStockId(stockId).collect { sum ->
+                    holdingShare = sum
+                    binding?.holdingSharesText?.text = if(sum != 0){sum.toString()} else {"沒"}
+                }
+            }
+
+        }
+    }
+
+
+
+    private fun doneButtonClickable(){
+
+        stockIdAndStockName()
+
+
+        if(type=="現股" && subtype=="買進"){
+            if(stock != "" && price != 0.0 && amount != 0 && fee != 0 && shares != 0){
+
+                binding?.doneButton?.isEnabled = true
+                binding?.doneButton?.setOnClickListener {
+                    outcome = amount
+                    addBuyRecord()
+                    addRecordSuccess()
+
+                }
+
+            } else {
+                binding?.doneButton?.isEnabled = false
+            }
+
+        } else if (type=="現股" && subtype=="賣出"){
+
+            if(stock != "" && price != 0.0 && amount != 0 && fee != 0 && shares != 0 && tax!=0 ){
+
+                binding?.doneButton?.isEnabled = true
+                binding?.doneButton?.setOnClickListener {
+                    income = amount
+
+                    lifecycle.coroutineScope.launch {
+                        viewModel.getSumSharesByStockId(stockId).collect { sum ->
+                            var holdingShare = sum
+                            if(holdingShare >= shares){
+                                addSellRecord()
+                                calculateProfit()
+                                addRecordSuccess()
+                            } else {
+                                Utils.showToast(this@AddActivity, "no enough holding for sell")
+                            }
+                        }
+                    }
+
+
+
+                }
+
+            } else {
+                binding?.doneButton?.isEnabled = false
+            }
+
+        } else if (type=="股利" && subtype=="現金股利"){
+            if(stock != "" && amount != 0){
+                binding?.doneButton?.isEnabled = true
+                binding?.doneButton?.setOnClickListener {
+                    income = amount
+                    addCashDividendRecord()
+                    addRecordSuccess()
+                }
+            } else {
+                binding?.doneButton?.isEnabled = false
+            }
+        } else if (type=="股利" && subtype=="股票股利"){
+            if(stock != "" && distributeShares != 0){
+                binding?.doneButton?.isEnabled = true
+                binding?.doneButton?.setOnClickListener {
+                    addStockDividendRecord()
+                    addRecordSuccess()
+
+                }
+            } else {
+                binding?.doneButton?.isEnabled = false
+            }
+        }
+    }
+
+    private fun addRecordSuccess(){
+        finish()
+        Utils.showToast(this,"新增成功")
+    }
+
+
+    private fun showDatePicker(){
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+
+        val datePickerDialog = DatePickerDialog(
+            this,
+            DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+                val storeDayOfMonth = if(dayOfMonth < 10) "0$dayOfMonth" else "$dayOfMonth"
+                val storeMonthOfYear = if((monthOfYear + 1)<10) "0${monthOfYear + 1}" else "${monthOfYear + 1}"
+                val selectedDate = "$year/$storeMonthOfYear/$storeDayOfMonth"
+
+                binding?.dateTextView?.setText(selectedDate)
+                date = "$year$storeMonthOfYear$storeDayOfMonth"
+
+            }, year, month, day
+
+        )
+        datePickerDialog.show()
+    }
+
+    private fun showToday(){
+
+        var simpleDateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.TAIWAN)
+        var todayDate = simpleDateFormat.format(System.currentTimeMillis())
+        binding?.dateTextView?.setText(todayDate)
+
+
+        var simpleDateFormat2 = SimpleDateFormat("yyyyMMdd", Locale.TAIWAN)
+        var todayDateForDatabase = simpleDateFormat2.format(System.currentTimeMillis())
+        date = todayDateForDatabase
+
+    }
+
+    private fun setupActionBar() {
+        setSupportActionBar(binding?.toolbarAddActivity)
+
+        if (supportActionBar != null) {
+            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+            supportActionBar!!.setHomeAsUpIndicator(R.drawable.icon_arrow_back)
+            supportActionBar!!.title="新增"
+        }
+        binding?.toolbarAddActivity?.setNavigationOnClickListener {
+            onBackPressed()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding = null
+    }
+
+    private fun transactionType(){
+        if(type =="現股" && subtype =="買進"){
+            transactionTypeCode = 1
+            transactionType = type+subtype
+        } else if (type =="現股" && subtype =="賣出"){
+            transactionTypeCode = 2
+            transactionType = type+subtype
+        } else if (type =="股利" && subtype =="現金股利"){
+            transactionTypeCode = 3
+            transactionType = subtype
+        } else if(type =="股利" && subtype =="股票股利"){
+            transactionTypeCode = 4
+            transactionType = subtype
+        }
+    }
+
+    private fun transactionTypeCheck(){
+        binding?.typeToggleGroup?.addOnButtonCheckedListener { group, checkedId, isChecked ->
+
+            if(isChecked){
+                if(checkedId == binding?.type1Button?.id){
+
+                    type = "現股"
+                    subtype = "買進"
+                    transactionType()
+
+                    binding?.subtype1Button?.text = "買進"
+                    binding?.subtype2Button?.text = "賣出"
+
+                    binding?.subtype1Button?.let { binding?.subtypeToggleGroup?.check(it.id) }
+
+                    binding?.amountLinearLayout?.visibility = View.VISIBLE
+                    binding?.feeLinearLayout?.visibility = View.VISIBLE
+                    binding?.taxLinearLayout?.visibility = View.GONE
+                    binding?.distributeLinearLayout?.visibility = View.GONE
+                    binding?.holdingSharesText?.visibility = View.GONE
+
+                    binding?.priceTextView?.text = "價格"
+                    binding?.sharesTextView?.text = "股數"
+                    binding?.distributeSharesTextView?.text = "交易金額"
+
+                } else if(checkedId == binding?.type2Button?.id){
+
+                    type = "股利"
+                    subtype = "現金股利"
+                    transactionType()
+
+                    binding?.subtype1Button?.text = "現金股利"
+                    binding?.subtype2Button?.text = "股票股利"
+
+                    binding?.subtype1Button?.let { binding?.subtypeToggleGroup?.check(it.id) }
+
+                    binding?.amountLinearLayout?.visibility = View.VISIBLE
+                    binding?.feeLinearLayout?.visibility = View.VISIBLE
+                    binding?.taxLinearLayout?.visibility = View.GONE
+                    binding?.distributeLinearLayout?.visibility = View.GONE
+                    binding?.holdingSharesText?.visibility = View.GONE
+
+                    binding?.priceTextView?.text = "現金股利"
+                    binding?.sharesTextView?.text = "持有股數"
+                    binding?.distributeSharesTextView?.text = "配發金額"
+
+
+                }
+
+                Utils.showToast(this,"$type $subtype")
+                cleanNumber()
+            }
+        }
+        binding?.subtypeToggleGroup?.addOnButtonCheckedListener { group, checkedId, isChecked ->
+
+
+            if(isChecked){
+                if(checkedId == binding?.subtype1Button?.id){
+                    if(type == "現股"){
+                        subtype = "買進"
+                        transactionType()
+
+                        binding?.amountLinearLayout?.visibility = View.VISIBLE
+                        binding?.feeLinearLayout?.visibility = View.VISIBLE
+                        binding?.taxLinearLayout?.visibility = View.GONE
+                        binding?.distributeLinearLayout?.visibility = View.GONE
+                        binding?.holdingSharesText?.visibility = View.GONE
+
+                        binding?.priceTextView?.text = "價格"
+                        binding?.sharesTextView?.text = "股數"
+                        binding?.distributeSharesTextView?.text = "交易金額"
+
+                    } else if(type == "股利") {
+                        subtype = "現金股利"
+                        transactionType()
+
+                        binding?.amountLinearLayout?.visibility = View.VISIBLE
+                        binding?.feeLinearLayout?.visibility = View.VISIBLE
+                        binding?.taxLinearLayout?.visibility = View.GONE
+                        binding?.distributeLinearLayout?.visibility = View.GONE
+                        binding?.holdingSharesText?.visibility = View.GONE
+
+                        binding?.priceTextView?.text = "現金股利"
+                        binding?.sharesTextView?.text = "持有股數"
+                        binding?.distributeSharesTextView?.text = "配發金額"
+
+                    }
+
+                } else if (checkedId == binding?.subtype2Button?.id) {
+                    if(type == "現股"){
+                        type = "現股"
+                        subtype = "賣出"
+                        transactionType()
+
+                        binding?.amountLinearLayout?.visibility = View.VISIBLE
+                        binding?.feeLinearLayout?.visibility = View.VISIBLE
+                        binding?.taxLinearLayout?.visibility = View.VISIBLE
+                        binding?.holdingSharesLinearLayout?.visibility = View.VISIBLE
+
+                        binding?.distributeLinearLayout?.visibility = View.GONE
+
+                        binding?.priceTextView?.text = "價格"
+                        binding?.sharesTextView?.text = "股數"
+                        binding?.distributeSharesTextView?.text = "交易金額"
+
+                        showHoldingShares()
+
+                    } else if (type == "股利") {
+                        type = "股利"
+                        subtype = "股票股利"
+                        transactionType()
+
+                        binding?.amountLinearLayout?.visibility = View.GONE
+                        binding?.feeLinearLayout?.visibility = View.GONE
+                        binding?.taxLinearLayout?.visibility = View.GONE
+                        binding?.distributeLinearLayout?.visibility = View.VISIBLE
+                        binding?.holdingSharesText?.visibility = View.GONE
+
+                        binding?.priceTextView?.text = "股票股利"
+                        binding?.sharesTextView?.text = "持有股數"
+                        binding?.distributeSharesTextView?.text = "配發股數"
+
+                    }
+                }
+                Utils.showToast(this,"$type $subtype")
+                cleanNumber()
+            }
+        }
+    }
+
+    private fun cleanNumber(){
+        fee = 0
+        price = 0.0
+        tax = 0
+        amount = 0
+        shares = 0
+        distributeShares = 0
+        income = 0
+        outcome = 0
+
+        binding?.feeEditText?.setText("")
+        binding?.amountEditText?.setText("")
+        binding?.taxEditText?.setText("")
+        binding?.priceEditText?.setText("")
+        binding?.sharesEditText?.setText("")
+        binding?.distributeSharesEditText?.setText("")
+    }
+
 
     //編輯滑動畫面
     private fun scrollWhenPressEditText(){
@@ -354,406 +779,8 @@ class AddActivity : BaseActivity() {
         }
     }
 
-    private fun addClosed(dataDao: DataDao){
-        //先確認有沒有庫存
-        //確認庫存夠不夠
-        //先進先出
-
-        stockIdAndStockName()
-
-
-//
-//        lifecycleScope.launch {
-//            var dataList: Flow<List<HoldingEntity>> = dataDao.fetchHoldingByStockId(stockId)
-//            Log.i("closed", "$dataList")
-//
-//
-//        }
-
-
-        finish()
-
-    }
-
-
-    private fun addHolding(dataDao: DataDao){
-
-        stockIdAndStockName()
-
-        when (transactionTypeCode) {
-            1 -> lifecycleScope.launch { dataDao.insertHolding(HoldingEntity(
-                stockId = stockId,
-                stockName = stockName,
-                transactionTypeCode = transactionTypeCode,
-                transactionType = transactionType,
-                price = price,
-                share = shares,
-                fee = fee,
-                outcome = amount,
-                averagePrice = amount.toDouble()/shares.toDouble(),
-                date = date)) }
-
-            4 -> lifecycleScope.launch { dataDao.insertHolding(HoldingEntity(
-                stockId = stockId,
-                stockName = stockName,
-                transactionTypeCode = transactionTypeCode,
-                transactionType = transactionType,
-                share = distributeShares,
-                fee = fee,
-                date = date)) }
-
-        }
-
-        Utils.showToast(this@AddActivity,"新增紀錄成功")
-        finish()
-
-    }
-
-    //新增紀錄
-    private fun addRecord(dataDao: DataDao){
-
-        stockIdAndStockName()
-
-
-        when (transactionTypeCode) {
-            1 -> lifecycleScope.launch { dataDao.insertRecord(RecordEntity(
-                stockId = stockId,
-                stockName = stockName,
-                transactionTypeCode = transactionTypeCode,
-                transactionType = transactionType,
-                price = price,
-                share = shares,
-                fee = fee,
-                tax = tax,
-                outcome = amount,
-                date = date)) }
-
-            2 -> lifecycleScope.launch { dataDao.insertRecord(RecordEntity(
-                stockId = stockId,
-                stockName = stockName,
-                transactionTypeCode = transactionTypeCode,
-                transactionType = transactionType,
-                price = price,
-                share = shares,
-                fee = fee,
-                tax = tax,
-                income = amount,
-                date = date)) }
-
-            3 -> lifecycleScope.launch { dataDao.insertRecord(RecordEntity(
-                stockId = stockId,
-                stockName = stockName,
-                transactionTypeCode = transactionTypeCode,
-                transactionType = transactionType,
-                price = price,
-                share = shares,
-                fee = fee,
-                tax = tax,
-                income = amount,
-                date = date)) }
-
-            4 -> lifecycleScope.launch { dataDao.insertRecord(RecordEntity(
-                stockId = stockId,
-                stockName = stockName,
-                transactionTypeCode = transactionTypeCode,
-                transactionType = transactionType,
-                price = price,
-                share = shares,
-                fee = fee,
-                tax = tax,
-                distributionShares = distributeShares,
-                date = date)) }
-
-        }
-
-        Utils.showToast(this@AddActivity,"新增紀錄成功")
-        finish()
-
-    }
-
-    private fun stockIdAndStockName(){
-
-        stock = binding?.stockAutoCompleteTextView?.text.toString()
-
-        if(stock.isNotEmpty()){
-            val splitString = stock.split(" ")
-            stockId = splitString[0]
-            stockName = splitString[1]
-        }
-
-    }
-
-
-
-
-
-
-    private fun doneButtonClickable(){
-
-        stockIdAndStockName()
-        val dataDao = (application as Application).database.dataDao()
-
-
-        if(type=="現股" && subtype=="買進"){
-            if(stock != "" && price != 0.0 && amount != 0 && fee != 0 && shares != 0){
-
-                binding?.doneButton?.isEnabled = true
-                binding?.doneButton?.setOnClickListener {
-                    outcome = amount
-                    addRecord(dataDao)
-                    addHolding(dataDao)
-
-                    addClosed(dataDao)
-                }
-
-            } else {
-                binding?.doneButton?.isEnabled = false
-            }
-
-        } else if (type=="現股" && subtype=="賣出"){
-
-            if(stock != "" && price != 0.0 && amount != 0 && fee != 0 && shares != 0 && tax!=0 ){
-
-                binding?.doneButton?.isEnabled = true
-                binding?.doneButton?.setOnClickListener {
-                    income = amount
-                    addRecord(dataDao)
-                }
-
-            } else {
-                binding?.doneButton?.isEnabled = false
-            }
-
-        } else if (type=="股利" && subtype=="現金股利"){
-            if(stock != "" && amount != 0){
-                binding?.doneButton?.isEnabled = true
-                binding?.doneButton?.setOnClickListener {
-                    income = amount
-                    addRecord(dataDao)
-                }
-            } else {
-                binding?.doneButton?.isEnabled = false
-            }
-        } else if (type=="股利" && subtype=="股票股利"){
-            if(stock != "" && distributeShares != 0){
-                binding?.doneButton?.isEnabled = true
-                binding?.doneButton?.setOnClickListener {
-                    addRecord(dataDao)
-                    addHolding(dataDao)
-                }
-            } else {
-                binding?.doneButton?.isEnabled = false
-            }
-        }
-    }
-
-
-    private fun showDatePicker(){
-        val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
-
-
-        val datePickerDialog = DatePickerDialog(
-            this,
-            DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
-                val storeDayOfMonth = if(dayOfMonth < 10) "0$dayOfMonth" else "$dayOfMonth"
-                val storeMonthOfYear = if((monthOfYear + 1)<10) "0${monthOfYear + 1}" else "${monthOfYear + 1}"
-                val selectedDate = "$year/$storeMonthOfYear/$storeDayOfMonth"
-
-                binding?.dateTextView?.setText(selectedDate)
-                date = selectedDate
-
-            }, year, month, day
-
-        )
-        datePickerDialog.show()
-    }
-
-    private fun showToday(){
-
-        var simpleDateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.TAIWAN)
-        var todayDate = simpleDateFormat.format(System.currentTimeMillis())
-        binding?.dateTextView?.setText(todayDate)
-        date = todayDate
-
-    }
-
-    private fun setupActionBar() {
-        setSupportActionBar(binding?.toolbarAddActivity)
-
-        if (supportActionBar != null) {
-            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-            supportActionBar!!.setHomeAsUpIndicator(R.drawable.icon_arrow_back)
-            supportActionBar!!.title="新增"
-        }
-        binding?.toolbarAddActivity?.setNavigationOnClickListener {
-            onBackPressed()
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        binding = null
-    }
-
-    private fun transactionType(){
-        if(type =="現股" && subtype =="買進"){
-            transactionTypeCode = 1
-            transactionType = type+subtype
-        } else if (type =="現股" && subtype =="賣出"){
-            transactionTypeCode = 2
-            transactionType = type+subtype
-        } else if (type =="股利" && subtype =="現金股利"){
-            transactionTypeCode = 3
-            transactionType = subtype
-        } else if(type =="股利" && subtype =="股票股利"){
-            transactionTypeCode = 4
-            transactionType = subtype
-        }
-    }
-
-    private fun transactionTypeCheck(){
-        binding?.typeToggleGroup?.addOnButtonCheckedListener { group, checkedId, isChecked ->
-
-            if(isChecked){
-                if(checkedId == binding?.type1Button?.id){
-
-                    type = "現股"
-                    subtype = "買進"
-                    transactionType()
-
-                    binding?.subtype1Button?.text = "買進"
-                    binding?.subtype2Button?.text = "賣出"
-
-                    binding?.subtype1Button?.let { binding?.subtypeToggleGroup?.check(it.id) }
-
-                    binding?.amountLinearLayout?.visibility = View.VISIBLE
-                    binding?.feeLinearLayout?.visibility = View.VISIBLE
-                    binding?.taxLinearLayout?.visibility = View.GONE
-                    binding?.distributeLinearLayout?.visibility = View.GONE
-
-                    binding?.priceTextView?.text = "價格"
-                    binding?.sharesTextView?.text = "股數"
-                    binding?.distributeSharesTextView?.text = "交易金額"
-
-                } else if(checkedId == binding?.type2Button?.id){
-
-                    type = "股利"
-                    subtype = "現金股利"
-                    transactionType()
-
-                    binding?.subtype1Button?.text = "現金股利"
-                    binding?.subtype2Button?.text = "股票股利"
-
-                    binding?.subtype1Button?.let { binding?.subtypeToggleGroup?.check(it.id) }
-
-                    binding?.amountLinearLayout?.visibility = View.VISIBLE
-                    binding?.feeLinearLayout?.visibility = View.VISIBLE
-                    binding?.taxLinearLayout?.visibility = View.GONE
-                    binding?.distributeLinearLayout?.visibility = View.GONE
-
-                    binding?.priceTextView?.text = "現金股利"
-                    binding?.sharesTextView?.text = "持有股數"
-                    binding?.distributeSharesTextView?.text = "配發金額"
-
-
-                }
-
-                Utils.showToast(this,"$type $subtype")
-                cleanNumber()
-            }
-        }
-        binding?.subtypeToggleGroup?.addOnButtonCheckedListener { group, checkedId, isChecked ->
-
-
-            if(isChecked){
-                if(checkedId == binding?.subtype1Button?.id){
-                    if(type == "現股"){
-                        subtype = "買進"
-                        transactionType()
-
-                        binding?.amountLinearLayout?.visibility = View.VISIBLE
-                        binding?.feeLinearLayout?.visibility = View.VISIBLE
-                        binding?.taxLinearLayout?.visibility = View.GONE
-                        binding?.distributeLinearLayout?.visibility = View.GONE
-
-                        binding?.priceTextView?.text = "價格"
-                        binding?.sharesTextView?.text = "股數"
-                        binding?.distributeSharesTextView?.text = "交易金額"
-
-                    } else if(type == "股利") {
-                        subtype = "現金股利"
-                        transactionType()
-
-                        binding?.amountLinearLayout?.visibility = View.VISIBLE
-                        binding?.feeLinearLayout?.visibility = View.VISIBLE
-                        binding?.taxLinearLayout?.visibility = View.GONE
-                        binding?.distributeLinearLayout?.visibility = View.GONE
-
-                        binding?.priceTextView?.text = "現金股利"
-                        binding?.sharesTextView?.text = "持有股數"
-                        binding?.distributeSharesTextView?.text = "配發金額"
-
-                    }
-
-                } else if (checkedId == binding?.subtype2Button?.id) {
-                    if(type == "現股"){
-                        type = "現股"
-                        subtype = "賣出"
-                        transactionType()
-
-                        binding?.amountLinearLayout?.visibility = View.VISIBLE
-                        binding?.feeLinearLayout?.visibility = View.VISIBLE
-                        binding?.taxLinearLayout?.visibility = View.VISIBLE
-                        binding?.distributeLinearLayout?.visibility = View.GONE
-
-                        binding?.priceTextView?.text = "價格"
-                        binding?.sharesTextView?.text = "股數"
-                        binding?.distributeSharesTextView?.text = "交易金額"
-
-
-                    } else if (type == "股利") {
-                        type = "股利"
-                        subtype = "股票股利"
-                        transactionType()
-
-                        binding?.amountLinearLayout?.visibility = View.GONE
-                        binding?.feeLinearLayout?.visibility = View.GONE
-                        binding?.taxLinearLayout?.visibility = View.GONE
-                        binding?.distributeLinearLayout?.visibility = View.VISIBLE
-
-                        binding?.priceTextView?.text = "股票股利"
-                        binding?.sharesTextView?.text = "持有股數"
-                        binding?.distributeSharesTextView?.text = "配發股數"
-
-                    }
-                }
-                Utils.showToast(this,"$type $subtype")
-                cleanNumber()
-            }
-        }
-    }
-
-    private fun cleanNumber(){
-        fee = 0
-        price = 0.0
-        tax = 0
-        amount = 0
-        shares = 0
-        distributeShares = 0
-        income = 0
-        outcome = 0
-
-        binding?.feeEditText?.setText("")
-        binding?.amountEditText?.setText("")
-        binding?.taxEditText?.setText("")
-        binding?.priceEditText?.setText("")
-        binding?.sharesEditText?.setText("")
-        binding?.distributeSharesEditText?.setText("")
-    }
-
 }
+
+
 
 
