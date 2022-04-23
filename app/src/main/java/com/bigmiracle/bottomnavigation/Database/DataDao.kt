@@ -71,6 +71,8 @@ interface DataDao {
     @Query("SELECT SUM(股數) FROM `holding-table`")
     fun getSumShares(): Flow<Int>
 
+    @Query("SELECT * FROM `holding-table` where 股票代號 = :id AND 交易日期<:date")
+    fun getHoldingForSell(id: String,date: String): Flow<List<HoldingEntity>>
 
 
 }

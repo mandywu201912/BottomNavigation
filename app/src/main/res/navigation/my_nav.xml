@@ -7,17 +7,25 @@
 
     <fragment
         android:id="@+id/firstFragment"
-        android:name="com.bigmiracle.bottomnavigation.FirstFragment"
-        android:label="fragment_first"
-        tools:layout="@layout/fragment_first" />
+        android:name="com.bigmiracle.bottomnavigation.Fragment.FirstFragment"
+        android:label="@string/app_name"
+        tools:layout="@layout/fragment_first">
+        <action
+            android:id="@+id/action_firstFragment_to_stockDetailFragment"
+            app:destination="@id/stockDetailFragment" />
+    </fragment>
     <fragment
         android:id="@+id/secondFragment"
-        android:name="com.bigmiracle.bottomnavigation.SecondFragment"
+        android:name="com.bigmiracle.bottomnavigation.Fragment.SecondFragment"
         android:label="fragment_second"
         tools:layout="@layout/fragment_second" />
-    <activity
-        android:id="@+id/secondActivity"
-        android:name="com.bigmiracle.bottomnavigation.Activity.SecondActivity"
-        android:label="activity_second"
-        tools:layout="@layout/activity_second" />
+    <fragment
+        android:id="@+id/stockDetailFragment"
+        android:name="com.bigmiracle.bottomnavigation.Fragment.StockDetailFragment"
+        android:label="{stockId}"
+        tools:layout="@layout/fragment_stock_detail" >
+        <argument
+            android:name="stockId"
+            app:argType="string" />
+    </fragment>
 </navigation>

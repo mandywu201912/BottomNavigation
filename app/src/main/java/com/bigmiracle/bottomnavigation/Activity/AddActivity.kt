@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.lifecycle.coroutineScope
@@ -200,6 +201,9 @@ class AddActivity : BaseActivity() {
         }
     }
 
+
+
+
     private fun showHoldingShares(){
         stockIdAndStockName()
         if(stockId != null && transactionTypeCode == 2){
@@ -211,6 +215,27 @@ class AddActivity : BaseActivity() {
                 }
             }
 
+        } else {
+            Utils.showToast(this,"請先輸入股票代號")
+        }
+    }
+
+    private fun getHoldingForSell(){
+        stockIdAndStockName()
+        lifecycle.coroutineScope.launch {
+            viewModel.getHoldingForSell(stockId,date).collect { list ->
+
+                
+                for(i in list){
+                    Log.i("list","${i.stockId}")
+                }
+
+                //抓出整個庫存的list
+                Log.i("list","$list")
+                Log.i("list","${list[0].share}")
+                Log.i("list","${list[1].share}")
+
+            }
         }
     }
 
@@ -251,6 +276,7 @@ class AddActivity : BaseActivity() {
                                 addSellRecord()
                                 calculateProfit()
                                 addRecordSuccess()
+                                getHoldingForSell()
                             } else {
                                 Utils.showToast(this@AddActivity, "no enough holding for sell")
                             }

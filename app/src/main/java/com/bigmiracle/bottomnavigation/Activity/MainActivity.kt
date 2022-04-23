@@ -8,6 +8,31 @@ import com.bigmiracle.bottomnavigation.Fragment.SecondFragment
 import com.bigmiracle.bottomnavigation.R
 import com.bigmiracle.bottomnavigation.databinding.ActivityMainBinding
 
+//class MainActivity : BaseActivity() {
+//
+//    private lateinit var navController: NavController
+//
+//
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//
+//        val binding = ActivityMainBinding.inflate(layoutInflater)
+//        setContentView(binding.root)
+//
+//        val navHostFragment = supportFragmentManager
+//            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+//        navController = navHostFragment.navController
+//
+//        setupActionBarWithNavController(navController)
+//
+//    }
+//
+//    override fun onSupportNavigateUp(): Boolean {
+//        return navController.navigateUp() || super.onSupportNavigateUp()
+//    }
+//
+//}
+
 class MainActivity : BaseActivity() {
 
     private var binding: ActivityMainBinding? = null
@@ -19,13 +44,14 @@ class MainActivity : BaseActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding?.root)
 
+
         setupActionBar()
 
         binding?.bottomNavigation?.itemIconTintList = null
 
 
         replaceFragment(firstFragment)
-        
+
         binding?.bottomNavigation?.setOnItemSelectedListener {
             when(it.itemId){
                 R.id.firstFragment -> replaceFragment(firstFragment)
@@ -43,6 +69,7 @@ class MainActivity : BaseActivity() {
 
     }
 
+
     override fun onBackPressed() {
         doubleBackToExit()
     }
@@ -58,7 +85,7 @@ class MainActivity : BaseActivity() {
     private fun replaceFragment(fragment: Fragment){
         if(fragment !=null){
             val transaction = supportFragmentManager.beginTransaction()
-            transaction.replace(R.id.fragment_container, fragment)
+            transaction.replace(R.id.nav_host_fragment, fragment)
 
             transaction.commit()
         }

@@ -14,6 +14,11 @@ class DataViewModel(private val dataDao: DataDao): ViewModel() {
     val allRecords: LiveData<List<RecordEntity>> = dataDao.getAllRecord().asLiveData()
 
 
+    fun getHoldingForSell(id: String,date: String):Flow<List<HoldingEntity>> {
+        return dataDao.getHoldingForSell(id, date)
+    }
+
+
     fun getSumSharesByStockId(stockId: String): Flow<Int> {
         return dataDao.getSumSharesByStockId(stockId)
     }
@@ -163,6 +168,15 @@ class DataViewModel(private val dataDao: DataDao): ViewModel() {
 
 
 
+
+//    fun getSumSharesByStockId(stockId: String): Flow<Int> {
+//        return dataDao.getSumSharesByStockId(stockId)
+//    }
+
+
+
+
+
     //這檔股票有庫存才能現股賣出
     //且庫存的數量要足夠
     //找到全部的2330庫存，把股數相加
@@ -192,8 +206,14 @@ class DataViewModel(private val dataDao: DataDao): ViewModel() {
     fun fullHolding(): Flow<List<HoldingEntity>> = dataDao.getAllHolding()
     fun holdingForStockId(id: String): Flow<List<HoldingEntity>> = dataDao.getHoldingByStockId(id)
 
+
+    fun stockHolding(id: String): LiveData<List<HoldingEntity>>{
+        return dataDao.getHoldingByStockId(id).asLiveData()
+    }
+
     fun fullClosed(): Flow<List<ClosedEntity>> = dataDao.getAllClosed()
     fun closedForStockId(id: String): Flow<List<ClosedEntity>> = dataDao.getClosedByStockId(id)
+
 }
 
 class DataViewModelFactory(private val dataDao: DataDao): ViewModelProvider.Factory {
