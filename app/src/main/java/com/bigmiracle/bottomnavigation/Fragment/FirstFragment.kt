@@ -57,16 +57,6 @@ class FirstFragment : Fragment() {
         recyclerView = binding?.recyclerView!!
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        //點擊把stockId導到stockDetailActivity
-//        startActivity(Intent(this, AddActivity::class.java))
-
-//        val adapter = HoldingAdapter(this, )
-//
-//        val holdingAdapter = HoldingAdapter{
-//            val intent = Intent(context, StockDetailActivity::class.java)
-//            intent.putExtra(it.stockId)
-//            startActivity(intent)
-//        }
 
         val holdingAdapter =context?.let { HoldingAdapter(it) }
 
@@ -74,7 +64,12 @@ class FirstFragment : Fragment() {
 
         lifecycle.coroutineScope.launch {
             viewModel.fullHolding().collect {
-                holdingAdapter!!.submitList(it)
+
+//                fun execute(stockList: List<HoldingEntity>): List<HoldingEntity>{
+//                    return groupStockList.transform(stockList)
+//                }
+//
+                holdingAdapter!!.submitList(groupStockList(it))
             }
         }
 
@@ -87,11 +82,82 @@ class FirstFragment : Fragment() {
                 }
             })
         }
-
-
-
-
     }
+
+    private fun transform(stockList: List<HoldingEntity>) = stockList
+        .groupBy { it.stockId }
+        .values
+        .map {
+            it.reduce { acc, holdingEntity ->
+                HoldingEntity(
+                    stockId = holdingEntity.stockId,
+                    stockName = holdingEntity.stockName,
+                    date = holdingEntity.date,
+                    share = acc.share + holdingEntity.share,
+                    transactionTypeCode = holdingEntity.transactionTypeCode,
+                    transactionType = holdingEntity.transactionType,
+                    price = ((acc.outcome + holdingEntity.outcome).toDouble())/((acc.share+holdingEntity.share).toDouble())
+
+                )
+            }
+        }
+
+    private fun groupStockList(holdingList: List<HoldingEntity>): List<HoldingEntity>{
+        return transform(holdingList)
+    }
+
+
+//    private fun getPriceData(stockId: String) {
+//        val retrofit: Retrofit= Retrofit.Builder()
+//            .baseUrl(Constants.NSTOCK_URL)
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .build()
+//
+//        val service: priceDataService= retrofit.create<priceDataService>(priceDataService::class.java)
+//
+//        lifecycleScope.launch {
+//            var listStockId = viewModel.getDistinctStockCode()
+//
+//
+//        }
+//
+//
+//
+//        val listCall: Call<priceDataResponse> = service.getDatas(stockId)
+//
+//        listCall.enqueue(object: Callback<priceDataResponse> {
+//            override fun onResponse(response: Response<priceDataResponse>?, retrofit: Retrofit?) {
+//                if( response!!.isSuccess ){
+//                    val dataList : priceDataResponse= response.body()
+//                    currentPrice = dataList.priceData[0].nowPrice.toDouble()
+//
+//
+//                    val stockDetailAdapter = StockDetailAdapter(currentPrice)
+//                    recyclerView.adapter = stockDetailAdapter
+//                    binding?.totalStockProfit?.text = total.toString()
+//                    binding?.nowPrice?.text = currentPrice.toString()
+//                    binding?.upDown?.text = dataList.priceData[0].upDown
+//                    binding?.upDownRatio?.text = dataList.priceData[0].upDownRatio
+//
+//
+//                    lifecycle.coroutineScope.launch {
+//                        viewModel.holdingForStockId(stockId).collect {
+//                            stockDetailAdapter!!.submitList(it)
+//
+//                        }
+//                    }
+//
+//                    Log.i("price data response result","$currentPrice")
+//
+//                }
+//            }
+//
+//            override fun onFailure(t: Throwable?) {
+//                TODO("Not yet implemented")
+//            }
+//        })
+//    }
+
 
     override fun onDestroy() {
         super.onDestroy()

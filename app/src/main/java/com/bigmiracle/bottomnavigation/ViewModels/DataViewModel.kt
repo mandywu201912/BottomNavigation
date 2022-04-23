@@ -23,6 +23,10 @@ class DataViewModel(private val dataDao: DataDao): ViewModel() {
         return dataDao.getSumSharesByStockId(stockId)
     }
 
+    suspend fun getDistinctStockCode():List<String>{
+        return dataDao.loadDistinctStockId()
+    }
+
 
 
 

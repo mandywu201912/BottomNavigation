@@ -38,6 +38,43 @@
             android:padding="20dp"
             android:orientation="vertical">
 
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/nowPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="累積損益"
+                    android:textSize="16sp"
+                    android:layout_marginEnd="8dp"
+                    android:textColor="@color/textColor_hintDarkGray" />
+
+                <TextView
+                    android:id="@+id/upDown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="累積損益"
+                    android:textSize="16sp"
+                    android:layout_marginEnd="8dp"
+                    android:textColor="@color/textColor_hintDarkGray" />
+
+                <TextView
+                    android:id="@+id/upDownRatio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="累積損益"
+                    android:textSize="16sp"
+                    android:layout_marginEnd="8dp"
+                    android:textColor="@color/textColor_hintDarkGray" />
+
+
+
+            </LinearLayout>
+
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -47,6 +84,7 @@
                 android:textColor="@color/textColor_hintDarkGray" />
 
             <TextView
+                android:id="@+id/totalStockProfit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="$126,632"

@@ -83,7 +83,7 @@
             android:layout_gravity="center">
 
             <TextView
-                android:id="@+id/stockAmountTextView"
+                android:id="@+id/stockProfitTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="700,000"
@@ -92,7 +92,7 @@
                 android:gravity="right"/>
 
             <TextView
-                android:id="@+id/stockProfitTextView"
+                android:id="@+id/stockProfitRatioTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="+9,408"

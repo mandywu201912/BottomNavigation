@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bigmiracle.bottomnavigation.Database.HoldingEntity
+import com.bigmiracle.bottomnavigation.Utils
 import com.bigmiracle.bottomnavigation.databinding.AdapterHoldingItemBinding
 
 class HoldingAdapter(
@@ -52,7 +53,7 @@ class HoldingAdapter(
             binding.apply {
                 binding?.stockIdTextView.text = holdingEntity.stockId
                 binding?.stockNameTextView.text = holdingEntity.stockName
-                binding?.stockPriceTextView.text = holdingEntity.price.toString()
+                binding?.buyPriceTextView.text = Utils.twoDigitDecimalFormat(holdingEntity.price)
                 binding?.stockSharesTextView.text = holdingEntity.share.toString()
             }
         }

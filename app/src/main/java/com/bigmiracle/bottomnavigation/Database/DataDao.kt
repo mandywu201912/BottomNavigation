@@ -74,5 +74,9 @@ interface DataDao {
     @Query("SELECT * FROM `holding-table` where 股票代號 = :id AND 交易日期<:date")
     fun getHoldingForSell(id: String,date: String): Flow<List<HoldingEntity>>
 
+    @Transaction
+    @Query("SELECT DISTINCT 股票代號 FROM `holding-table`")
+    suspend fun loadDistinctStockId(): List<String>
+
 
 }

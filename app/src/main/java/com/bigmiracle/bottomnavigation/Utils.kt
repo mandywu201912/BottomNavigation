@@ -55,6 +55,11 @@ object Utils {
         return result
     }
 
+    fun twoDigitDecimalFormat(number: Double): String {
+        val decimalFormat = DecimalFormat("0.##")
+        return decimalFormat.format(number)
+    }
+
 
 
 
