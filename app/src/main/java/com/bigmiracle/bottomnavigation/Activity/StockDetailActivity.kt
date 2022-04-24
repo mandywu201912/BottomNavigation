@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import retrofit.*
 
-class StockDetailActivity : BaseActivity(), StockDetailAdapter.CallbackInterface {
+class StockDetailActivity : BaseActivity(){
 
     private var binding: ActivityStockDetailBinding? = null
     private lateinit var stockId: String
@@ -88,9 +88,16 @@ class StockDetailActivity : BaseActivity(), StockDetailAdapter.CallbackInterface
                     binding?.upDownRatio?.text = dataList.priceData[0].upDownRatio
 
 
+
                     lifecycle.coroutineScope.launch {
                         viewModel.holdingForStockId(stockId).collect {
                             stockDetailAdapter!!.submitList(it)
+
+                            var totalShares = 0
+                            for(i in 0 until it.size){
+                                totalShares += it[i].share
+                                binding?.sharesTextView?.text = totalShares.toString()
+                            }
 
                         }
                     }
@@ -123,12 +130,6 @@ class StockDetailActivity : BaseActivity(), StockDetailAdapter.CallbackInterface
     override fun onDestroy() {
         super.onDestroy()
         binding = null
-    }
-
-    override fun passResultCallback(totalProfit: Int) {
-        total = totalProfit
-
-        Log.i("totalProfit","$totalProfit")
     }
 
 

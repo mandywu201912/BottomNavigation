@@ -47,28 +47,28 @@
                     android:id="@+id/nowPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="累積損益"
+                    android:text="股價"
                     android:textSize="16sp"
                     android:layout_marginEnd="8dp"
-                    android:textColor="@color/textColor_hintDarkGray" />
+                    android:textColor="@color/textColor_addTextWhite" />
 
                 <TextView
                     android:id="@+id/upDown"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="累積損益"
+                    android:text="漲跌"
                     android:textSize="16sp"
                     android:layout_marginEnd="8dp"
-                    android:textColor="@color/textColor_hintDarkGray" />
+                    android:textColor="@color/textColor_addTextWhite" />
 
                 <TextView
                     android:id="@+id/upDownRatio"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="累積損益"
+                    android:text="漲跌幅"
                     android:textSize="16sp"
                     android:layout_marginEnd="8dp"
-                    android:textColor="@color/textColor_hintDarkGray" />
+                    android:textColor="@color/textColor_addTextWhite" />
 
 
 
@@ -76,12 +76,13 @@
 
 
             <TextView
+                android:id="@+id/sharesTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="累積損益"
+                android:text="股數"
                 android:textSize="16sp"
                 android:layout_marginEnd="8dp"
-                android:textColor="@color/textColor_hintDarkGray" />
+                android:textColor="@color/textColor_addTextWhite" />
 
             <TextView
                 android:id="@+id/totalStockProfit"

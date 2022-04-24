@@ -18,6 +18,7 @@ class HoldingAdapter(
 
     class HoldingViewHolder(private var binding: AdapterHoldingItemBinding): RecyclerView.ViewHolder(binding.root){
 
+
         fun bind(holdingEntity: HoldingEntity,price: priceData){
             binding.apply {
 
@@ -26,6 +27,7 @@ class HoldingAdapter(
                 var share: Int = holdingEntity.share
                 var profit: Int = ((nowPrice-buyPrice)*share).toInt()
                 var profitRatio: Double = (profit/(buyPrice*share))*100
+
 
                 binding?.stockIdTextView.text = holdingEntity.stockId
                 binding?.stockNameTextView.text = holdingEntity.stockName
@@ -55,6 +57,7 @@ class HoldingAdapter(
                 onClickListener!!.onClick(position,model)
             }
         }
+
     }
 
 

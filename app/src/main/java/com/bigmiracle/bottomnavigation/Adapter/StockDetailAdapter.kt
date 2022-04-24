@@ -8,20 +8,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bigmiracle.bottomnavigation.Database.HoldingEntity
 import com.bigmiracle.bottomnavigation.Utils
 import com.bigmiracle.bottomnavigation.databinding.AdapterStockDetailItemBinding
-import java.lang.Integer.sum
 
 
 class StockDetailAdapter(
     currentPrice: Double,
-//    val callbackInterface: CallbackInterface?
 //    private val onItemClicked: (HoldingEntity) -> Unit
 
 ) : ListAdapter<HoldingEntity, StockDetailAdapter.HoldingViewHolder>(DiffCallback) {
 
 
-    interface CallbackInterface {
-        fun passResultCallback(totalProfit: Int)
-    }
 
 
     var price = currentPrice
@@ -45,10 +40,8 @@ class StockDetailAdapter(
 //            onItemClicked(current)
 //        }
 
-        holder.bind(current,price)
 
-        val dollar = sum(holder.cal(current,price),profit)
-//        callbackInterface?.passResultCallback(dollar)
+        holder.bind(current,price)
 
 
 
@@ -57,16 +50,6 @@ class StockDetailAdapter(
 
     class HoldingViewHolder(private var binding: AdapterStockDetailItemBinding): RecyclerView.ViewHolder(binding.root){
 
-        fun cal(holdingEntity: HoldingEntity,currentPrice: Double):Int{
-            var buyPrice: Double = holdingEntity.price
-            var buyShares: Double = holdingEntity.share.toDouble()
-            var cost: Int = holdingEntity.outcome+ holdingEntity.fee
-            var nowValue: Int = (currentPrice*buyShares).toInt()
-            var profit: Int = nowValue-cost
-
-            return profit
-
-        }
 
         fun bind(holdingEntity: HoldingEntity,currentPrice: Double){
 
@@ -89,7 +72,6 @@ class StockDetailAdapter(
     }
 
     companion object {
-
 
         private val DiffCallback = object : DiffUtil.ItemCallback<HoldingEntity>(){
             override fun areItemsTheSame(oldItem: HoldingEntity, newItem: HoldingEntity): Boolean {
