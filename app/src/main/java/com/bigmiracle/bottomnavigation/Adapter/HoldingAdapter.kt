@@ -20,19 +20,28 @@ class HoldingAdapter(
 
         fun bind(holdingEntity: HoldingEntity,price: priceData){
             binding.apply {
+
+                var buyPrice: Double = holdingEntity.price
+                var nowPrice: Double = price.nowPrice.toDouble()
+                var share: Int = holdingEntity.share
+                var profit: Int = ((nowPrice-buyPrice)*share).toInt()
+                var profitRatio: Double = (profit/(buyPrice*share))*100
+
                 binding?.stockIdTextView.text = holdingEntity.stockId
                 binding?.stockNameTextView.text = holdingEntity.stockName
-                binding?.buyPriceTextView.text = Utils.twoDigitDecimalFormat(holdingEntity.price)
+                binding?.buyPriceTextView.text = Utils.twoDigitDecimalFormat(buyPrice)
                 binding?.stockSharesTextView.text = holdingEntity.share.toString()
-                binding?.stockPriceTextView.text = Utils.twoDigitDecimalFormat(price.nowPrice.toDouble())
+                binding?.stockPriceTextView.text = Utils.twoDigitDecimalFormat(nowPrice)
+                binding?.profitTextView.text = profit.toString()
+                binding?.profitRatioTextView.text = "${Utils.twoDigitDecimalFormat(profitRatio)}%"
             }
         }
     }
 
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HoldingAdapter.HoldingViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HoldingViewHolder {
 
-        return HoldingAdapter.HoldingViewHolder(AdapterHoldingItemBinding.inflate(LayoutInflater.from(
+        return HoldingViewHolder(AdapterHoldingItemBinding.inflate(LayoutInflater.from(
             parent.context), parent, false))
     }
 

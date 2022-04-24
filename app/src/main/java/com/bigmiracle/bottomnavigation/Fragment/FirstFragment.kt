@@ -2,14 +2,12 @@ package com.bigmiracle.bottomnavigation.Fragment
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.coroutineScope
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bigmiracle.bottomnavigation.Activity.StockDetailActivity
@@ -32,6 +30,7 @@ class FirstFragment : Fragment() {
     private var binding: FragmentFirstBinding? = null
     private lateinit var recyclerView: RecyclerView
     private var stockIdArray: List<String>? = null
+    private var groupList: List<HoldingEntity> = listOf()
 
 
     private val viewModel: DataViewModel by activityViewModels {
@@ -41,7 +40,6 @@ class FirstFragment : Fragment() {
     }
 
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -49,22 +47,28 @@ class FirstFragment : Fragment() {
         binding = FragmentFirstBinding.inflate(inflater, container, false)
         return binding?.root
 
-
-
     }
 
-    private fun groupStockList(holdingList: List<HoldingEntity>): List<HoldingEntity>{
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        var newList = transform(holdingList)
-        stockIdArray = newList.map { it.stockId }
+        lifecycle.coroutineScope.launch {
+            viewModel.fullHolding().collect {
+                groupList = groupStockList(it)
 
-        Log.i("stock array","$stockIdArray")
-        return newList
+                stockIdArray = groupList.map { it.stockId }
+                var separator = ","
+                var string = stockIdArray?.joinToString(separator)
+
+                if (string != null) {
+                    getPriceData(string)
+                }
+            }
+        }
     }
 
 
-
-    private fun getPriceData(stockId: String){
+    private fun getPriceData(stockId: String) {
         val retrofit: Retrofit= Retrofit.Builder()
             .baseUrl("https://api.nstock.tw")
             .addConverterFactory(GsonConverterFactory.create())
@@ -77,9 +81,26 @@ class FirstFragment : Fragment() {
             override fun onResponse(response: Response<priceDataResponse>?, retrofit: Retrofit?) {
                 if( response!!.isSuccess ){
                     val dataList : priceDataResponse= response.body()
-                    populateRecyclerView(dataList)
 
-                    Log.i("price data response result","$dataList")
+                    recyclerView = binding?.recyclerView!!
+                    recyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+                    var holdingAdapter = HoldingAdapter(dataList.priceData)
+                    recyclerView.adapter = holdingAdapter
+
+
+                    holdingAdapter!!.submitList(groupList)
+
+                    if (holdingAdapter != null) {
+                        holdingAdapter.setOnClickListener(object: HoldingAdapter.OnClickListener{
+                            override fun onClick(position: Int, model: HoldingEntity) {
+                                val intent = Intent(context, StockDetailActivity::class.java)
+                                intent.putExtra(Constants.STOCK_ID,model.stockId)
+                                startActivity(intent)
+                            }
+                        })
+                    }
+
                 }
             }
 
@@ -90,74 +111,13 @@ class FirstFragment : Fragment() {
         })
     }
 
-    private fun populateRecyclerView(priceDataResponse: priceDataResponse){
+    private fun groupStockList(holdingList: List<HoldingEntity>): List<HoldingEntity>{
 
-        recyclerView = binding?.recyclerView!!
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-
-
-        var holdingAdapter = HoldingAdapter(priceDataResponse.priceData)
-
-
-//        val holdingAdapter =context?.let { HoldingAdapter(it) }
-
-        recyclerView.adapter = holdingAdapter
-
-        lifecycle.coroutineScope.launch {
-            viewModel.fullHolding().collect {
-
-
-                holdingAdapter!!.submitList(groupStockList(it))
-            }
-        }
-
-        if (holdingAdapter != null) {
-            holdingAdapter.setOnClickListener(object: HoldingAdapter.OnClickListener{
-                override fun onClick(position: Int, model: HoldingEntity) {
-                    val intent = Intent(context, StockDetailActivity::class.java)
-                    intent.putExtra(Constants.STOCK_ID,model.stockId)
-                    startActivity(intent)
-                }
-            })
-        }
-    }
-
-
-    private suspend fun getStockId(): String? {
-
-
-        var separator = ","
-        var string =stockIdArray?.joinToString(separator)
-
-        return string
-
-
+        return transform(holdingList)
     }
 
 
 
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-
-        //取得holding的股名array
-        var string = ""
-        var separator = ","
-
-        lifecycleScope.launch {
-            string = viewModel.getDistinctStockId().joinToString(separator)
-            getPriceData(string)
-        }
-
-
-
-//        recyclerView = binding?.recyclerView!!
-//        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-
-
-
-    }
 
     private fun transform(stockList: List<HoldingEntity>) = stockList
         .groupBy { it.stockId }
