@@ -1,31 +1,45 @@
 package com.bigmiracle.bottomnavigation.Adapter
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bigmiracle.bottomnavigation.Database.HoldingEntity
+import com.bigmiracle.bottomnavigation.Model.priceData
 import com.bigmiracle.bottomnavigation.Utils
 import com.bigmiracle.bottomnavigation.databinding.AdapterHoldingItemBinding
 
 class HoldingAdapter(
-    private val context: Context,
+    private val priceDataList: List<priceData>
 ) : ListAdapter<HoldingEntity, HoldingAdapter.HoldingViewHolder>(DiffCallback) {
 
     private var onClickListener: OnClickListener? = null
 
+    class HoldingViewHolder(private var binding: AdapterHoldingItemBinding): RecyclerView.ViewHolder(binding.root){
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HoldingViewHolder {
+        fun bind(holdingEntity: HoldingEntity,price: priceData){
+            binding.apply {
+                binding?.stockIdTextView.text = holdingEntity.stockId
+                binding?.stockNameTextView.text = holdingEntity.stockName
+                binding?.buyPriceTextView.text = Utils.twoDigitDecimalFormat(holdingEntity.price)
+                binding?.stockSharesTextView.text = holdingEntity.share.toString()
+                binding?.stockPriceTextView.text = Utils.twoDigitDecimalFormat(price.nowPrice.toDouble())
+            }
+        }
+    }
 
-        return HoldingViewHolder(AdapterHoldingItemBinding.inflate(LayoutInflater.from(parent.context),parent,false))
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HoldingAdapter.HoldingViewHolder {
+
+        return HoldingAdapter.HoldingViewHolder(AdapterHoldingItemBinding.inflate(LayoutInflater.from(
+            parent.context), parent, false))
     }
 
     override fun onBindViewHolder(holder: HoldingViewHolder, position: Int) {
-
         val model = getItem(position)
-        holder.bind(model)
+        val price = priceDataList[position]
+        holder.bind(model,price)
 
         holder.itemView.setOnClickListener {
             if(onClickListener != null){
@@ -33,6 +47,7 @@ class HoldingAdapter(
             }
         }
     }
+
 
     interface OnClickListener{
         fun onClick(position: Int, model: HoldingEntity)
@@ -42,22 +57,6 @@ class HoldingAdapter(
         this.onClickListener = onClickListener
     }
 
-
-
-
-    class HoldingViewHolder(
-        private var binding: AdapterHoldingItemBinding
-    ): RecyclerView.ViewHolder(binding.root){
-
-        fun bind(holdingEntity: HoldingEntity){
-            binding.apply {
-                binding?.stockIdTextView.text = holdingEntity.stockId
-                binding?.stockNameTextView.text = holdingEntity.stockName
-                binding?.buyPriceTextView.text = Utils.twoDigitDecimalFormat(holdingEntity.price)
-                binding?.stockSharesTextView.text = holdingEntity.share.toString()
-            }
-        }
-    }
 
 
     companion object {
@@ -71,6 +70,7 @@ class HoldingAdapter(
             }
         }
     }
+
 }
 
 

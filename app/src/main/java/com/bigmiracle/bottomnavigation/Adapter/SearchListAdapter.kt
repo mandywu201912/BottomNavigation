@@ -2,29 +2,26 @@ package com.bigmiracle.bottomnavigation.Adapter
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bigmiracle.bottomnavigation.Model.Stock
-import com.bigmiracle.bottomnavigation.R
+import com.bigmiracle.bottomnavigation.databinding.AdapterSearchListItemBinding
 
 class SearchListAdapter(
     private val context: Context,
     private val searchStockList: List<Stock>
 ) : RecyclerView.Adapter<SearchListAdapter.ItemViewHolder>() {
 
-    class ItemViewHolder(private val view: View) : RecyclerView.ViewHolder(view){
-        val textView: TextView= view.findViewById(R.id.stockAdapterTextView)
+    class ItemViewHolder(binding: AdapterSearchListItemBinding) : RecyclerView.ViewHolder(binding.root){
+        val textView = binding.stockAdapterTextView
     }
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int,
-    ): SearchListAdapter.ItemViewHolder {
+    ): ItemViewHolder {
 
-        val adapterLayout = LayoutInflater.from(parent.context).inflate(R.layout.adapter_search_list_item,parent,false)
-        return ItemViewHolder(adapterLayout)
+        return ItemViewHolder(AdapterSearchListItemBinding.inflate(LayoutInflater.from(parent.context),parent,false))
 
     }
 
